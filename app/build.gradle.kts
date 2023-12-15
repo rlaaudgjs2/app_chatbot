@@ -4,8 +4,11 @@ plugins {
 
 android {
     namespace = "com.example.chatbot"
-    compileSdk = 33
+    compileSdk = 34
 
+    buildFeatures {
+        viewBinding  = true
+    }
     defaultConfig {
         applicationId = "com.example.chatbot"
         minSdk = 24
@@ -32,7 +35,11 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation ("com.google.gms:google-services:4.3.15")
+    implementation ("com.google.firebase:firebase-auth:22.0.0")
+    implementation ("com.google.firebase:firebase-bom:32.0.0")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
