@@ -6,6 +6,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -163,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.group_setting) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 1 선택", Toast.LENGTH_SHORT).show();
+                    openGroupCreateFragment();
                 } else if (id == R.id.document) {
                     Toast.makeText(getApplicationContext(), "메뉴아이템 2 선택", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.new_chat) {
@@ -181,6 +183,18 @@ public class MainActivity extends AppCompatActivity {
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
+            }
+
+            private void openGroupCreateFragment() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                GroupCreate groupCreateFragment = new GroupCreate();
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, groupCreateFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+
             }
         });
     }

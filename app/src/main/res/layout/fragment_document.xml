@@ -6,96 +6,108 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#D9C2AD"
-    tools:context=".GroupCreate">
+    tools:context=".Document">
 
 
     <ImageView
         android:id="@+id/cat_group"
         android:layout_width="186dp"
         android:layout_height="352dp"
-        android:src="@drawable/cat_group"
+        android:src="@drawable/book_cat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.442"
+        app:layout_constraintHorizontal_bias="0.395"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-
     <android.widget.Button
         android:id="@+id/button_create"
-        android:layout_width="60dp"
+        android:layout_width="79dp"
         android:layout_height="37dp"
         android:background="@drawable/recived"
-        android:text="만들기"
+        android:text="문서 추가"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.814"
+        app:layout_constraintHorizontal_bias="0.851"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.517" />
+        app:layout_constraintVertical_bias="0.52" />
+
 
     <android.widget.Button
-        android:id="@+id/button_join"
-        android:layout_width="60dp"
+        android:id="@+id/doUpload"
+        android:layout_width="78dp"
         android:layout_height="37dp"
         android:background="@drawable/recived"
-        android:text="입장"
+        android:text="업로드 하기"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.814"
+        app:layout_constraintHorizontal_bias="0.253"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.671" />
+        app:layout_constraintVertical_bias="0.864" />
+
+    <android.widget.Button
+        android:id="@+id/document_close"
+        android:layout_width="60dp"
+        android:layout_height="37dp"
+        android:background="@drawable/recived"
+        android:text="닫기"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.652"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.864" />
 
     <EditText
         android:id="@+id/new_group"
         android:layout_width="234dp"
         android:layout_height="44dp"
-        android:layout_marginTop="36dp"
-        android:hint="새로운 그룹을 만들어보세요"
+        android:layout_marginTop="24dp"
+        android:hint="문서집 이름 작성"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.361"
+        app:layout_constraintHorizontal_bias="0.293"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_newGroup" />
+
     <TextView
         android:id="@+id/txt_newGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="그룹 생성"
-        android:textSize="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.445"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.412" />
-
-
-    <TextView
-        android:id="@+id/txt_oldGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="기존 그룹이 있다면"
+        android:text="새로운 문서집 추가"
         android:textSize="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.417"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.606" />
+        app:layout_constraintVertical_bias="0.433" />
 
-    <EditText
-        android:id="@+id/old_group"
-        android:layout_width="234dp"
-        android:layout_height="44dp"
-        android:layout_marginTop="8dp"
-        android:hint="초대 코드를 입력하세요"
+    <TextView
+        android:id="@+id/txt_oldGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="문서 저장"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.406"
+        app:layout_constraintHorizontal_bias="0.448"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_oldGroup" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.685" />
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="308dp"
+        android:layout_height="29dp"
+        android:autofillHints=""
+        tools:layout_editor_absoluteX="54dp"
+        tools:layout_editor_absoluteY="520dp"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

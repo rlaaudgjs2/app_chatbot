@@ -10,7 +10,6 @@
     tools:context=".MainActivity">
 
 
-
     <!-- 본문 레이아웃 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -65,6 +64,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
+
             <!-- ImageButton -->
             <ImageButton
                 android:id="@+id/submit_button"
@@ -78,6 +78,12 @@
                 app:layout_constraintStart_toEndOf="@+id/submit_answer" />
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <include layout="@layout/app_sidebar" />
 
     <!-- NavigationView -->

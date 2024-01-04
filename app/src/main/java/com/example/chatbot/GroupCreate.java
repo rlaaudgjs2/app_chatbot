@@ -4,9 +4,13 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +18,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class GroupCreate extends Fragment {
+    private EditText newGroupEditText;
+    private EditText oldGroupEditText;
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,15 +35,6 @@ public class GroupCreate extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GroupCreate.
-     */
-    // TODO: Rename and change types and number of parameters
     public static GroupCreate newInstance(String param1, String param2) {
         GroupCreate fragment = new GroupCreate();
         Bundle args = new Bundle();
@@ -59,6 +57,40 @@ public class GroupCreate extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_group_create, container, false);
+        View view = inflater.inflate(R.layout.fragment_group_create, container, false);
+
+        oldGroupEditText = view.findViewById(R.id.old_group);
+        newGroupEditText = view.findViewById(R.id.new_group);
+
+
+        Button createButton = view.findViewById(R.id.button_create);
+        Button joinButton = view.findViewById(R.id.button_join);
+
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewGroup();
+            }
+        });
+        joinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                joinExistingGroup();
+            }
+        });
+
+        return view;
+    }
+   private void createNewGroup() {
+           String newGroupName = newGroupEditText.getText().toString();
+       Log.e("GroupCreate", "he null");
+           // 나머지 로직...
+    }
+
+    private void joinExistingGroup() {
+        String existingGroupCode = oldGroupEditText.getText().toString();
+        // 여기에 기존 그룹에 입장하기 위한 로직을 추가하세요.
+        // 예를 들어, 서버에 입장 요청을 보내는 API 호출 등이 포함될 수 있습니다.
+        Log.e("GroupCreate", "het is null");
     }
 }
