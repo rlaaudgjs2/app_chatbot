@@ -36,19 +36,6 @@
         app:layout_constraintVertical_bias="0.52" />
 
 
-    <android.widget.Button
-        android:id="@+id/doUpload"
-        android:layout_width="78dp"
-        android:layout_height="37dp"
-        android:background="@drawable/recived"
-        android:text="업로드 하기"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.253"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.864" />
 
     <android.widget.Button
         android:id="@+id/document_close"
@@ -60,6 +47,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.652"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.864" />
+
+    <include
+        layout="@layout/fragment_file_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.288"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.864" />
@@ -101,6 +99,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.685" />
 
+
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="308dp"
@@ -109,5 +108,8 @@
         tools:layout_editor_absoluteX="54dp"
         tools:layout_editor_absoluteY="520dp"
         tools:ignore="MissingConstraints" />
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,14 +18,17 @@
 
 
         <!-- RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:id="@+id/recycler_view"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/bottom_layout"/>
 
         <!-- TextView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_layout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,7 +79,10 @@
                 android:layout_marginBottom="25dp"
                 android:background="@drawable/submit"
                 app:layout_constraintStart_toEndOf="@+id/submit_answer" />
+
         </RelativeLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
@@ -86,6 +92,7 @@
 
     <include layout="@layout/app_sidebar" />
 
+
     <!-- NavigationView -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
@@ -94,4 +101,5 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/header_layout"
         app:menu="@menu/sidebar_menu" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

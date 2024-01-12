@@ -173,16 +173,45 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.info_setting) {
                     Toast.makeText(getApplicationContext(), "메뉴아이템 4 선택", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.group_manag) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 5 선택", Toast.LENGTH_SHORT).show();
+                   openFileUpload();
                 } else if (id == R.id.document_upload) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 6 선택", Toast.LENGTH_SHORT).show();
+                    openDocumentFragment();
                 } else if (id == R.id.logout) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 7 선택", Toast.LENGTH_SHORT).show();
+                    openLoginFragment();
                 }
 
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
+            }
+
+            private void openFileUpload() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FileUpload fileUpload = new FileUpload();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, fileUpload);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+
+            private void openDocumentFragment() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Document signIn = new Document();
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, signIn);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+
+            private void openLoginInFragment() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                SignIn signIn = new SignIn();
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, signIn);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
 
             private void openGroupCreateFragment() {
@@ -196,8 +225,21 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+            private void openLoginFragment() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                SignUp signUp = new SignUp();
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, signUp);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+
+            }
         });
     }
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
