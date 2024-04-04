@@ -167,11 +167,11 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.group_setting) {
                     openGroupCreateFragment();
                 } else if (id == R.id.document) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 2 선택", Toast.LENGTH_SHORT).show();
+                    openOldDocument();
                 } else if (id == R.id.new_chat) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 3 선택", Toast.LENGTH_SHORT).show();
+                    openChatList();
                 } else if (id == R.id.info_setting) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 4 선택", Toast.LENGTH_SHORT).show();
+                    openSettingMyinfo();
                 } else if (id == R.id.group_manag) {
                    openFileUpload();
                 } else if (id == R.id.document_upload) {
@@ -236,7 +236,37 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+            private  void  openOldDocument() {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Old_Document oldDocument = new Old_Document();
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, oldDocument);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+            }
         });
+    }
+
+    private void openSettingMyinfo() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SettingMyinfo settingMyinfo = new SettingMyinfo();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, settingMyinfo);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void openChatList() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ChatList chatList = new ChatList();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, chatList);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
 
