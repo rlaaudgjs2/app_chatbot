@@ -2,6 +2,7 @@ package com.example.chatbot;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -12,14 +13,34 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link GroupCreate#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class GroupCreate extends Fragment {
-    private EditText newGroupEditText;
-    private EditText oldGroupEditText;
+    // 아이디 정보
+    private String userId;
+    private Map<String, Object> userInfo = new HashMap<>();
+
+    // 새로운  그룹 생성할 때 필요한 데이터
+    private EditText new_groupName;
+    private String newCode;
+
+    // 기존 그룹 입장
+    private EditText oldcode;
+    private Map<String, Object> groupInfo = new HashMap<>();
+
+    private FirebaseFirestore db;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -47,10 +68,6 @@ public class GroupCreate extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -59,8 +76,8 @@ public class GroupCreate extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_group_create, container, false);
 
-        oldGroupEditText = view.findViewById(R.id.old_group);
-        newGroupEditText = view.findViewById(R.id.new_group);
+        oldcode = view.findViewById(R.id.old_group);
+        new_groupName = view.findViewById(R.id.new_group);
 
 
         Button createButton = view.findViewById(R.id.button_create);
@@ -81,16 +98,67 @@ public class GroupCreate extends Fragment {
 
         return view;
     }
-   private void createNewGroup() {
-           String newGroupName = newGroupEditText.getText().toString();
-       Log.e("GroupCreate", "he null");
-           // 나머지 로직...
+
+    private void createNewGroup() {
+        String newGroupName = new_groupName.getText().toString();
+
+        // 새로운 코드 생성
+        newCode = UUID.randomUUID().toString().substring(0, 10);
+
+        // 그룹 데이터 설정
+        Map<String, Object> groupdata = new HashMap<>();
+        groupdata.put("enterCode", newCode);
+        groupdata.put("groupName", newGroupName);
+
+        // Firestore 인스턴스 가져오기
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 그룹 추가
+        db.collection("group")
+                .add(groupdata)
+                .addOnSuccessListener(documentReference -> {
+                    // 그룹 추가 성공 시 처리
+                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    // 데이터 삽입이 성공했을 때 할 작업 추가
+                    Toast.makeText(getContext(), "그룹 생성 완료", Toast.LENGTH_SHORT).show();
+                    // 메인 채팅 화면으로 이동
+
+                })
+                .addOnFailureListener(e -> {
+                    // 그룹 추가 실패 시 처리
+                    Log.e("Firestore", "Error adding document", e);
+                    // 데이터 삽입 중 오류가 발생했을 때 처리
+                    Toast.makeText(getContext(), "그룹 생성 실패", Toast.LENGTH_SHORT).show();
+                });
     }
 
+
     private void joinExistingGroup() {
-        String existingGroupCode = oldGroupEditText.getText().toString();
-        // 여기에 기존 그룹에 입장하기 위한 로직을 추가하세요.
-        // 예를 들어, 서버에 입장 요청을 보내는 API 호출 등이 포함될 수 있습니다.
-        Log.e("GroupCreate", "het is null");
+        String oldcode_name = oldcode.getText().toString();
+
+        // Firestore 인스턴스 가져오기
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("group")
+                .whereEqualTo("enterCode", oldcode_name)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            // 그룹이 존재하는 경우
+                            DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                            groupInfo = doc.getData();
+//                            setGroupMember(); // 그룹 멤버로 가입하는 메소드 호출
+                            Toast.makeText(getContext(), "그룹이 존재합니다", Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            // 그룹이 존재하지 않는 경우
+                            Toast.makeText(getContext(), "존재하지 않는 입장코드입니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Firestore에서 그룹 데이터를 가져오는 도중 오류가 발생한 경우
+                        Log.e("GroupSetFragment", "Error getting group data", task.getException());
+                    }
+                });
     }
 }

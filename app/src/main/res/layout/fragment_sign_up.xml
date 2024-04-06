@@ -8,98 +8,155 @@
     android:background="@color/brown"
     tools:context=".SignUp">
 
+
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="162dp"
-        android:layout_height="296dp"
-        android:layout_marginTop="3dp"
+        android:layout_width="189dp"
+        android:layout_height="222dp"
+        android:layout_marginTop="108dp"
         android:src="@drawable/cats"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.421"
+        app:layout_constraintHorizontal_bias="0.337"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:textColor="@color/blue"
-        android:textSize="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <android.widget.Button
+        android:id="@+id/duple_check_name"
+        android:layout_width="74dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="중복확인"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/signUp_nickname"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.097"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.446" />
+        app:layout_constraintLeft_toRightOf="@+id/signUp_nickname"
+        app:layout_constraintRight_toRightOf="@+id/signUp_nickname"
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Password"
-        android:textColor="@color/blue"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/signUp_nickname"
+        app:layout_constraintVertical_bias="0.272" />
+
+    <android.widget.Button
+        android:id="@+id/duple_check_id"
+        android:layout_width="74dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="중복확인"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/signUp_id"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.021"
+        app:layout_constraintLeft_toRightOf="@+id/signUp_id"
+        app:layout_constraintTop_toTopOf="@id/signUp_id"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/signUp_phone_number"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_box"
+        android:hint="전화번호"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.389"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintTop_toBottomOf="@+id/signUp_nickname" />
+
+    <EditText
+        android:id="@+id/signUp_password_duple"
+        android:layout_width="233dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+
+        android:background="@drawable/edit_box"
+        android:ems="10"
+        android:hint="비밀번호 확인"
+        android:inputType="textPassword"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.393"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUp_password" />
+
+    <EditText
+        android:id="@+id/signUp_nickname"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/edit_box"
+        android:hint="닉네임"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.389"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUp_name" />
 
     <EditText
         android:id="@+id/signUp_id"
         android:layout_width="234dp"
         android:layout_height="44dp"
-        android:layout_marginTop="10dp"
-        android:hint="계정을 입력하세요"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/edit_box"
+        android:hint="아이디"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.587"
+        app:layout_constraintHorizontal_bias="0.389"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.438" />
+        app:layout_constraintTop_toBottomOf="@+id/signUp_phone_number" />
 
     <EditText
         android:id="@+id/signUp_password"
         android:layout_width="233dp"
         android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_box"
         android:ems="10"
-        android:hint="비밀번호를 입력하세요"
+        android:hint="비밀번호"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.589"
+        app:layout_constraintHorizontal_bias="0.393"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499" />
+        app:layout_constraintTop_toBottomOf="@+id/signUp_id" />
+
+    <EditText
+        android:id="@+id/signUp_name"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="316dp"
+        android:background="@drawable/edit_box"
+        android:hint="이름"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.389"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.widget.Button
         android:id="@+id/signUp_button"
         android:layout_width="139dp"
         android:layout_height="43dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/recived"
         android:text="가입하기"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.681" />
-
-    <android.widget.Button
-        android:id="@+id/duple_check"
-        android:layout_width="74dp"
-        android:layout_height="33dp"
-        android:background="@drawable/recived"
-        android:text="중복확인"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.447" />
+        app:layout_constraintLeft_toLeftOf="@id/signUp_password_duple"
+        app:layout_constraintRight_toRightOf="@id/signUp_password_duple"
+        app:layout_constraintTop_toBottomOf="@+id/signUp_password_duple" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

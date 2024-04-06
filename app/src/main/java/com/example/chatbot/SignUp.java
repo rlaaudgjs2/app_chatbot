@@ -2,8 +2,13 @@ package com.example.chatbot;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +23,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,8 +34,15 @@ import com.android.volley.toolbox.Volley;
 public class SignUp extends Fragment {
 
     private Map<String, String> parameters;
-    private EditText signUpIdEditText;
-    private EditText signUpPasswordEditText;
+    private EditText signUp_id;
+    private EditText signUp_password;
+    private EditText signUp_password_duple;
+    private EditText signUp_name;
+    private EditText signUp_nickname;
+    private EditText signUp_phone_number;
+
+    private Button duple_check_name;
+    private Button duple_check_id;
     private Button signUpButton;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -48,6 +62,7 @@ public class SignUp extends Fragment {
 
     /**
      * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
@@ -77,48 +92,55 @@ public class SignUp extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
-        signUpIdEditText = view.findViewById(R.id.signUp_id);
-        signUpPasswordEditText = view.findViewById(R.id.signUp_password);
+        signUp_name = view.findViewById(R.id.signUp_name);
+        signUp_nickname = view.findViewById(R.id.signUp_nickname);
+        signUp_phone_number = view.findViewById(R.id.signUp_phone_number);
+        signUp_id = view.findViewById(R.id.signUp_id);
+        signUp_password = view.findViewById(R.id.signUp_password);
+        signUp_password_duple = view.findViewById(R.id.signUp_password_duple);
+
+
         signUpButton = view.findViewById(R.id.signUp_button);
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String userName = signUpIdEditText.getText().toString();
-                String userID = signUpPasswordEditText.getText().toString();
+        signUpButton.setOnClickListener(v -> {
 
+            // 사용자가 입력한 데이터 가져오기
+            String name = signUp_name.getText().toString();
+            String nickname = signUp_nickname.getText().toString();
+            String phoneNumber = signUp_phone_number.getText().toString();
+            String id = signUp_id.getText().toString();
+            String password = signUp_password.getText().toString();
+            String passwordDuple = signUp_password_duple.getText().toString();
 
-                // 회원가입 요청을 서버로 전송
-                sendSignUpRequest(userName, userID);
-            }
+            // Firestore 데이터베이스에 삽입할 데이터 가져오기
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", name);
+            userData.put("nickname", nickname);
+            userData.put("phoneNumber", phoneNumber);
+            userData.put("id", id);
+            userData.put("password", password);
+            userData.put("passwordDuple", passwordDuple);
+
+            // Firestore 데이터베이스의 'users' 컬렉션에 새 문서 추가
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users")
+                    .add(userData)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                            // 데이터 삽입이 성공했을 때 할 작업 추가
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("Firestore", "Error adding document", e);
+                            // 데이터 삽입 중 오류가 발생했을 때 처리
+                        }
+                    });
         });
 
-
-        return view;
+        return view; // View 객체 반환
     }
-    private void sendSignUpRequest(String userName, String userID) {
-        String url = "http://10.0.2.2/UserInfo.php";  // 사용할 서버의 URL로 변경
-
-
-
-        StringRequest request = new StringRequest(Request.Method.POST, url,
-                response -> {
-                    Log.d("SignUp", "Server Response: " + response);
-                },
-                error -> {
-                    Log.e("SignUp", "Server Error: " + error.toString());
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-                // POST 요청에 포함될 매개변수 설정
-                Map<String, String> params = new HashMap<>();
-                params.put("userName", userName);
-                params.put("userID", userID);
-                return params;
-            }
-        };
-
-        // Volley 요청 큐에 요청을 추가
-        Volley.newRequestQueue(requireContext()).add(request);
-    }
-
 }
+

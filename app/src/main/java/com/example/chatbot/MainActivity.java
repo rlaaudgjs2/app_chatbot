@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.document_upload) {
                     openDocumentFragment();
                 } else if (id == R.id.logout) {
-                    openLoginFragment();
+                    openSignupFragment();
                 }
 
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-            private void openLoginFragment() {
+            private void openSignupFragment() {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 SignUp signUp = new SignUp();
 

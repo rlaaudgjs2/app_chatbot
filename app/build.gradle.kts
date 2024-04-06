@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -35,6 +36,11 @@ android {
 }
 
 dependencies {
+    implementation (platform("com.google.firebase:firebase-bom:32.8.0"))
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+
+    // Add the dependency for the Firebase SDK for Google Analytics
+    implementation("com.google.firebase:firebase-analytics")
     implementation ("com.android.volley:volley:1.2.0")
     implementation ("androidx.drawerlayout:drawerlayout:1.1.1")
     implementation ("androidx.appcompat:appcompat:1.3.1")
@@ -48,6 +54,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.firebase:firebase-firestore:24.11.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
