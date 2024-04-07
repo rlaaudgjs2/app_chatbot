@@ -25,6 +25,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,6 +41,8 @@ public class SignUp extends Fragment {
     private EditText signUp_name;
     private EditText signUp_nickname;
     private EditText signUp_phone_number;
+
+    private int duple_check;
 
     private Button duple_check_name;
     private Button duple_check_id;
@@ -98,12 +101,59 @@ public class SignUp extends Fragment {
         signUp_id = view.findViewById(R.id.signUp_id);
         signUp_password = view.findViewById(R.id.signUp_password);
         signUp_password_duple = view.findViewById(R.id.signUp_password_duple);
+        duple_check_id = view.findViewById(R.id.duple_check_id);
+        duple_check_name = view.findViewById(R.id.duple_check_name);
 
 
         signUpButton = view.findViewById(R.id.signUp_button);
-        signUpButton.setOnClickListener(v -> {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newUsersignup();
+            }
+        });
 
-            // 사용자가 입력한 데이터 가져오기
+        duple_check_id.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dupleCheckID();
+            }
+        });
+
+        duple_check_name.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                dupleCheckName();
+            }
+        });
+
+        return view; // View 객체 반환
+    }
+
+    private void dupleCheckName() {
+    }
+
+    private void dupleCheckID() {
+        String userId = signUp_id.getText().toString();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .whereEqualTo("id", userId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if(querySnapshot != null && !querySnapshot.isEmpty()) {
+                                //중복 아이디 확인
+                                Log.d("Duple check", "중복 아이디 존재")
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void newUsersignup() {
             String name = signUp_name.getText().toString();
             String nickname = signUp_nickname.getText().toString();
             String phoneNumber = signUp_phone_number.getText().toString();
@@ -138,9 +188,7 @@ public class SignUp extends Fragment {
                             // 데이터 삽입 중 오류가 발생했을 때 처리
                         }
                     });
-        });
-
-        return view; // View 객체 반환
+        }
     }
-}
+
 

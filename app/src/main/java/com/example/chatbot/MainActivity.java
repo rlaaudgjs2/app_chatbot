@@ -196,10 +196,10 @@ public class MainActivity extends AppCompatActivity {
 
             private void openDocumentFragment() {
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                Document signIn = new Document();
+                Document document = new Document();
 
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragment_container, signIn);
+                transaction.replace(R.id.fragment_container, document);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }

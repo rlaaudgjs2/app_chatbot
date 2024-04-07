@@ -9,18 +9,126 @@
     tools:context=".SettingMyinfo">
 
 
-    <TextView
-        android:id="@+id/txt_newGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="채팅 목록"
-        android:textSize="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.427"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
+    <ImageButton
+        android:id="@+id/mypage_image"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:background="@drawable/mypage"
+        android:layout_marginTop="100dp"
+
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </ImageButton>
+
+    <EditText
+        android:id="@+id/user_name"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:background="@drawable/edit_box"
+        android:hint="이름"
+        android:ems="10"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/mypage_image"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        />
+    <EditText
+        android:id="@+id/user_phone"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:background="@drawable/edit_box"
+        android:hint="전화번호"
+        android:ems="10"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/user_name"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        />
+    <EditText
+        android:id="@+id/user_nickname"
+        android:layout_width="234dp"
+        android:layout_height="44dp"
+        android:background="@drawable/edit_box"
+        android:hint="닉네임"
+        android:ems="10"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColorHint="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/user_phone"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <android.widget.Button
+        android:id="@+id/user_duple_nickname"
+        android:layout_width="74dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="중복확인"
+        android:textColor="@color/white"
+        app:layout_constraintLeft_toRightOf="@id/user_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/user_nickname"
+        app:layout_constraintTop_toTopOf="@id/user_nickname"
+        android:layout_marginLeft="10dp"
+ />
+
+    <android.widget.Button
+        android:id="@+id/user_amend"
+        android:layout_width="74dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="중복확인"
+        android:textColor="@color/white"
+        app:layout_constraintLeft_toRightOf="@id/user_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/user_nickname"
+        app:layout_constraintTop_toTopOf="@id/user_nickname"
+        android:layout_marginLeft="10dp"
+        />
+    <android.widget.Button
+        android:id="@+id/user_modify"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="뒤로가기"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/user_nickname"
+        android:layout_marginTop="60dp"
+        app:layout_constraintLeft_toLeftOf="@+id/user_nickname"
+        android:layout_marginLeft="10dp"
+        />
+
+    <android.widget.Button
+        android:id="@+id/go_back"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/recived"
+        android:text="뒤로가기"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/user_nickname"
+        android:layout_marginTop="60dp"
+        app:layout_constraintRight_toRightOf="@+id/user_nickname"
+        android:layout_marginLeft="10dp"
+        />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

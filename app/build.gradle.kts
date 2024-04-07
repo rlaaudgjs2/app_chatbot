@@ -40,6 +40,7 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
     // Add the dependency for the Firebase SDK for Google Analytics
+
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.android.volley:volley:1.2.0")
     implementation ("androidx.drawerlayout:drawerlayout:1.1.1")

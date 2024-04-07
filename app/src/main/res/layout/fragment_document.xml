@@ -22,7 +22,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <android.widget.Button
-        android:id="@+id/button_create"
+        android:id="@+id/document_commit"
         android:layout_width="79dp"
         android:layout_height="37dp"
         android:background="@drawable/recived"
@@ -38,11 +38,11 @@
 
 
     <android.widget.Button
-        android:id="@+id/document_close"
-        android:layout_width="60dp"
-        android:layout_height="37dp"
+        android:id="@+id/document_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/recived"
-        android:text="닫기"
+        android:text="문서 삭제"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,7 +63,7 @@
         app:layout_constraintVertical_bias="0.864" />
 
     <EditText
-        android:id="@+id/new_group"
+        android:id="@+id/document_text"
         android:layout_width="234dp"
         android:layout_height="44dp"
         android:layout_marginTop="24dp"

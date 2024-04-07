@@ -7,13 +7,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Document extends Fragment implements FileUploadInterface {
-
+public class Document extends Fragment  {
+    private String userId;
+    private String userName;
+    private String groupName;
+    private EditText document_name;
+    private Button document_commit;
+    private List<String> folderNames = new ArrayList<>();
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
@@ -37,21 +54,50 @@ public class Document extends Fragment implements FileUploadInterface {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_document, container, false);
-
         // FileUpload 프래그먼트를 생성하고 listener를 설정
         FileUpload fileUploadFragment = new FileUpload();
-        fileUploadFragment.setFileUploadListener(this);
+        document_name = view.findViewById(R.id.document_text);
+        document_commit = view.findViewById(R.id.document_commit);
 
         // FileUpload 프래그먼트를 추가
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.fileUploadContainer, fileUploadFragment)
                 .commit();
+        document_commit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFileUpload();
+            }
+        });
 
         return view;
     }
 
-    @Override
-    public void onFileUpload(Uri fileUri) {
+    private void onFileUpload() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String document_text = document_name.getText().toString();
+
+
+        // Firestore 데이터베이스에 삽입할 데이터 가져오기
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("folderName", document_text);
+
+        db.collection("documents")
+                .add(userData)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                        // 데이터 삽입이 성공했을 때 할 작업 추가
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Firestore", "Error adding document", e);
+                        // 데이터 삽입 중 오류가 발생했을 때 처리
+                    }
+                });
         Log.e("FileUpload", "onFileUpload() 호출");
         // TODO: 파일 업로드 이벤트를 처리하는 로직 추가
     }

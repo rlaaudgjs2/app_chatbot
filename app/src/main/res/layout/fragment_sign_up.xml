@@ -11,12 +11,15 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="189dp"
-        android:layout_height="222dp"
-        android:layout_marginTop="108dp"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="10dp"
         android:src="@drawable/cats"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.337"
+        app:layout_constraintHorizontal_bias="0.385"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,7 +57,7 @@
         android:id="@+id/signUp_phone_number"
         android:layout_width="234dp"
         android:layout_height="44dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/edit_box"
         android:hint="전화번호"
         android:paddingStart="10dp"
@@ -69,8 +72,7 @@
         android:id="@+id/signUp_password_duple"
         android:layout_width="233dp"
         android:layout_height="40dp"
-        android:layout_marginTop="20dp"
-
+        android:layout_marginTop="12dp"
         android:background="@drawable/edit_box"
         android:ems="10"
         android:hint="비밀번호 확인"
@@ -79,7 +81,7 @@
         android:paddingEnd="10dp"
         android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.393"
+        app:layout_constraintHorizontal_bias="0.389"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signUp_password" />
 
@@ -118,7 +120,7 @@
         android:id="@+id/signUp_password"
         android:layout_width="233dp"
         android:layout_height="40dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/edit_box"
         android:ems="10"
         android:hint="비밀번호"
@@ -127,7 +129,7 @@
         android:paddingEnd="10dp"
         android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.393"
+        app:layout_constraintHorizontal_bias="0.389"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signUp_id" />
 
@@ -135,22 +137,25 @@
         android:id="@+id/signUp_name"
         android:layout_width="234dp"
         android:layout_height="44dp"
-        android:layout_marginTop="316dp"
         android:background="@drawable/edit_box"
         android:hint="이름"
+        android:ems="10"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:textColorHint="#FFFFFF"
+        android:layout_marginRight="40dp"
+        android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.389"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView"         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:flow_horizontalBias="0.389"
+        />
 
     <android.widget.Button
         android:id="@+id/signUp_button"
         android:layout_width="139dp"
         android:layout_height="43dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/recived"
         android:text="가입하기"
         android:textColor="@color/white"
