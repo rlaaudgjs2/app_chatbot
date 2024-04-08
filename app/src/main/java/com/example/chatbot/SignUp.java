@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -57,7 +59,7 @@ public class SignUp extends Fragment {
     private Button signUpButton;
 
 
-    private  Pattern checkId = Pattern.compile("[ㄱ-ㅎㅏ-ㅣ가-힣~₩!@#$%^&*()+._=,/\"':;'><]");
+    private Pattern checkId = Pattern.compile("[ㄱ-ㅎㅏ-ㅣ가-힣~₩!@#$%^&*()+._=,/\"':;'><]");
 
     private Pattern specialPattern = Pattern.compile("[!@#$%^&*()_+\\-=\\\\|{}\\[\\]:\";'<>?,./]");
     private Pattern number = Pattern.compile("[0-9]");
@@ -123,6 +125,7 @@ public class SignUp extends Fragment {
             private boolean isFormatting;
             private StringBuilder formmatPhonenum;
             int cur_start;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 s = "010";
@@ -131,7 +134,7 @@ public class SignUp extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-               cur_start = start;
+                cur_start = start;
             }
 
             @Override
@@ -150,7 +153,7 @@ public class SignUp extends Fragment {
                 int length = inputPhoneNumber.length();
                 for (int i = 0; i < length; i++) {
                     formmatPhonenum.append(inputPhoneNumber.charAt(i));
-                    if(cur_start==13) {
+                    if (cur_start == 13) {
                         if (formmatPhonenum.length() == 3 || formmatPhonenum.length() == 8) {
                             // 전화번호 포맷에 맞게 "-" 추가
                             formmatPhonenum.append("-");
@@ -259,7 +262,7 @@ public class SignUp extends Fragment {
 
     // 닉네임 유효성 검사
     private boolean validateNickname(String nickname) {
-         if (nickname.isEmpty()) {
+        if (nickname.isEmpty()) {
             showToast("닉네임이 입력되지 않았습니다.");
             signUp_nickname.requestFocus();
             return false;
@@ -372,6 +375,7 @@ public class SignUp extends Fragment {
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
+
     private void newUsersignup() {
         String name = signUp_name.getText().toString();
         String nickname = signUp_nickname.getText().toString();
@@ -385,31 +389,36 @@ public class SignUp extends Fragment {
                 validateId(id) && validatePassword(password) && validatePasswordConfirmation(password, passwordDuple) &&
                 validateDuplicateCheck(duple_checkID, duple_checkNickname)) {
 
-            // 모든 조건이 만족되었을 때 Firestore에 데이터 추가
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("name", name);
-            userData.put("nickname", nickname);
-            userData.put("phoneNumber", phoneNumber);
-            userData.put("id", id);
-            userData.put("password", password);
-            userData.put("passwordDuple", passwordDuple);
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(id + "@timproject.co.kr", password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            if (user != null) {
+                                // 모든 조건이 만족되었을 때 Firestore에 데이터 추가
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("name", name);
+                                userData.put("nickname", nickname);
+                                userData.put("phoneNumber", phoneNumber);
+                                userData.put("id", id);
 
-            // Firestore 데이터베이스의 'users' 컬렉션에 새 문서 추가
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users")
-                    .add(userData)
-                    .addOnSuccessListener(documentReference -> {
-                        showToast("Cats가입이 되셨습니다!");
-                        // 데이터 삽입이 성공했을 때 할 작업 추가
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("Firestore", "Error adding document", e);
-                        // 데이터 삽입 중 오류가 발생했을 때 처리
+                                // Firestore 데이터베이스의 'users' 컬렉션에 새 문서 추가
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                db.collection("users")
+                                        .add(userData)
+                                        .addOnSuccessListener(documentReference -> {
+                                            showToast("Cats가입이 되셨습니다!");
+                                            // 데이터 삽입이 성공했을 때 할 작업 추가
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("Firestore", "Error adding document", e);
+                                            // 데이터 삽입 중 오류가 발생했을 때 처리
+                                        });
+                            }
+                        } else {
+                            // 회원가입 실패 처리
+                            showToast("회원가입에 실패하였습니다: " + task.getException().getMessage());
+                        }
                     });
         }
     }
-
 }
-
-
-

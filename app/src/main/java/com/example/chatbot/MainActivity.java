@@ -187,9 +187,9 @@ public class MainActivity extends AppCompatActivity {
 
             private void openFileUpload() {
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                FileUpload fileUpload = new FileUpload();
+                SignIn signIn = new SignIn();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragment_container, fileUpload);
+                transaction.replace(R.id.fragment_container, signIn);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
