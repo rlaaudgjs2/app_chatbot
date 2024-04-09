@@ -16,24 +16,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Chatbot"
         tools:targetApi="31" >
+
         <activity
-            android:name=".model.Sign_"
-            android:exported="false" />
-        <activity
-            android:name=".Chatbot"
-            android:exported="false" />
-        <activity
-            android:name=".Login"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".SignInActivity"
             android:exported="true"
             android:theme="@style/Theme.Chatbot" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Chatbot" >
         </activity>
     </application>
 

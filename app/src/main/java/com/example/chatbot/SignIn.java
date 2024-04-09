@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -43,6 +45,7 @@ public class SignIn extends Fragment  {
     private static final int RC_SIGN_IN = 123;
     private GoogleSignInClient mGoogleSignInClient;
     private View view;
+    private TextView signup_change;
 
     private EditText userIdEditText;
     private EditText userPasswordEditText;
@@ -63,6 +66,14 @@ public class SignIn extends Fragment  {
 
         userIdEditText = view.findViewById(R.id.input_id);
         userPasswordEditText = view.findViewById(R.id.input_password);
+        signup_change = view.findViewById(R.id.signup_change);
+
+        signup_change.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChangeSignUp();
+            }
+        });
 
         signCat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +85,16 @@ public class SignIn extends Fragment  {
         return view;
     }
 
+    private void ChangeSignUp() {
+        Fragment signUp = new SignUp();
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, signUp);
+
+        transaction.addToBackStack(null);
+
+        transaction.commit();
+
+    }
 
 
     private void signCat(){
@@ -93,7 +114,7 @@ public class SignIn extends Fragment  {
                             // 로그인 성공
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(getContext(), "로그인 성공: " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                            // 여기에서 필요한 작업을 수행할 수 있습니다.
+
                         } else {
                             // 로그인 실패
                             Toast.makeText(getContext(), "로그인 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

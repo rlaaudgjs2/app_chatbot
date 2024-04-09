@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -51,6 +53,8 @@ public class SignUp extends Fragment {
     private EditText signUp_phone_number;
 
     private int duple_checkID;
+
+    private TextView signin_change;
 
     private int duple_checkNickname;
 
@@ -120,6 +124,18 @@ public class SignUp extends Fragment {
         signUp_password_duple = view.findViewById(R.id.signUp_password_duple);
         duple_check_id = view.findViewById(R.id.duple_check_id);
         duple_check_name = view.findViewById(R.id.duple_check_name);
+        signin_change = view.findViewById(R.id.signup_change);
+
+        signin_change.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment signIn = new SignIn();
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.container, signIn);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
 
         signUp_phone_number.addTextChangedListener(new TextWatcher() {
             private boolean isFormatting;
@@ -407,6 +423,12 @@ public class SignUp extends Fragment {
                                         .add(userData)
                                         .addOnSuccessListener(documentReference -> {
                                             showToast("Cats가입이 되셨습니다!");
+                                            showToast("로그인 페이지로 이동합니다.");
+                                            Fragment signIn = new SignIn();
+                                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                                            transaction.replace(R.id.container,signIn);
+                                            transaction.addToBackStack(null);
+                                            transaction.commit();
                                             // 데이터 삽입이 성공했을 때 할 작업 추가
                                         })
                                         .addOnFailureListener(e -> {
