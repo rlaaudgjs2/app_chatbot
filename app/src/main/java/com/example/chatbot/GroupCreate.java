@@ -1,10 +1,8 @@
 package com.example.chatbot;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +11,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,6 +39,7 @@ public class GroupCreate extends Fragment {
     // 새로운  그룹 생성할 때 필요한 데이터
     private EditText new_groupName;
     private String newCode;
+    private String name;
 
     // 기존 그룹 입장
     private EditText oldcode;
@@ -101,41 +106,81 @@ public class GroupCreate extends Fragment {
 
     private void createNewGroup() {
         String newGroupName = new_groupName.getText().toString();
+        Bundle bundle = getArguments();
+        if (bundle != null){
+            userId = bundle.getString("userId");
 
-        // 새로운 코드 생성
-        newCode = UUID.randomUUID().toString().substring(0, 10);
+            // userId를 사용하여 필요한 작업을 수행
+        }
 
-        // 그룹 데이터 설정
-        Map<String, Object> groupdata = new HashMap<>();
-        groupdata.put("enterCode", newCode);
-        groupdata.put("groupName", newGroupName);
 
+        newCode = UUID.randomUUID().toString().substring(0,10); //10개의 랜덤 코드 발행
         // Firestore 인스턴스 가져오기
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // 그룹 추가
-        db.collection("group")
-                .add(groupdata)
-                .addOnSuccessListener(documentReference -> {
-                    // 그룹 추가 성공 시 처리
-                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
-                    // 데이터 삽입이 성공했을 때 할 작업 추가
-                    Toast.makeText(getContext(), "그룹 생성 완료", Toast.LENGTH_SHORT).show();
-                    // 메인 채팅 화면으로 이동
 
-                })
-                .addOnFailureListener(e -> {
-                    // 그룹 추가 실패 시 처리
-                    Log.e("Firestore", "Error adding document", e);
-                    // 데이터 삽입 중 오류가 발생했을 때 처리
-                    Toast.makeText(getContext(), "그룹 생성 실패", Toast.LENGTH_SHORT).show();
-                });
+        DocumentReference docRef = db.collection("users").document(userId);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                         name = document.getString("name");
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        // 그룹 데이터 설정
+
+
+        Map<String, Object> memberData = new HashMap<>();
+        memberData.put("name", name);
+        memberData.put("uid", userId);
+
+
+        List<Map<String, Object>> memberList = new ArrayList<>();
+        memberList.add(memberData);
+
+        Map<String, Object> groupdata = new HashMap<>();
+        groupdata.put("enterCode", newCode);
+        groupdata.put("groupName", newGroupName);
+        groupdata.put("member", memberList);
+        groupdata.put("owner", userId);
+
+//        // 그룹 추가
+//        db.collection("group")
+//                .add(groupdata)
+//                .addOnSuccessListener(documentReference -> {
+//                    // 그룹 추가 성공 시 처리
+//                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                    // 데이터 삽입이 성공했을 때 할 작업 추가
+//                    Toast.makeText(getContext(), "그룹 생성 완료", Toast.LENGTH_SHORT).show();
+//                    // 메인 채팅 화면으로 이동
+//
+//                })
+//                .addOnFailureListener(e -> {
+//                    // 그룹 추가 실패 시 처리
+//                    Log.e("Firestore", "Error adding document", e);
+//                    // 데이터 삽입 중 오류가 발생했을 때 처리
+//                    Toast.makeText(getContext(), "그룹 생성 실패", Toast.LENGTH_SHORT).show();
+//                });
     }
 
 
     private void joinExistingGroup() {
         String oldcode_name = oldcode.getText().toString();
-
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String userId = bundle.getString("userId");
+            // userId를 사용하여 필요한 작업을 수행
+        }
         // Firestore 인스턴스 가져오기
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
