@@ -34,6 +34,7 @@ import java.util.UUID;
 public class GroupCreate extends Fragment {
     // 아이디 정보
     private String userId;
+    private String uid;
     private Map<String, Object> userInfo = new HashMap<>();
 
     // 새로운  그룹 생성할 때 필요한 데이터
@@ -108,8 +109,7 @@ public class GroupCreate extends Fragment {
         String newGroupName = new_groupName.getText().toString();
         Bundle bundle = getArguments();
         if (bundle != null){
-            userId = bundle.getString("userId");
-
+            uid = bundle.getString("uid");
             // userId를 사용하여 필요한 작업을 수행
         }
 
@@ -119,7 +119,7 @@ public class GroupCreate extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
-        DocumentReference docRef = db.collection("users").document(userId);
+        DocumentReference docRef = db.collection("users").document(uid);
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -138,11 +138,13 @@ public class GroupCreate extends Fragment {
         });
 
         // 그룹 데이터 설정
+        Map<String , Object> enterCode = new HashMap<>();
+        enterCode.put("enterCode", newCode);
 
 
         Map<String, Object> memberData = new HashMap<>();
         memberData.put("name", name);
-        memberData.put("uid", userId);
+        memberData.put("uid", uid);
 
 
         List<Map<String, Object>> memberList = new ArrayList<>();
@@ -152,25 +154,26 @@ public class GroupCreate extends Fragment {
         groupdata.put("enterCode", newCode);
         groupdata.put("groupName", newGroupName);
         groupdata.put("member", memberList);
-        groupdata.put("owner", userId);
+        groupdata.put("owner", uid);
 
-//        // 그룹 추가
-//        db.collection("group")
-//                .add(groupdata)
-//                .addOnSuccessListener(documentReference -> {
-//                    // 그룹 추가 성공 시 처리
-//                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
-//                    // 데이터 삽입이 성공했을 때 할 작업 추가
-//                    Toast.makeText(getContext(), "그룹 생성 완료", Toast.LENGTH_SHORT).show();
-//                    // 메인 채팅 화면으로 이동
-//
-//                })
-//                .addOnFailureListener(e -> {
-//                    // 그룹 추가 실패 시 처리
-//                    Log.e("Firestore", "Error adding document", e);
-//                    // 데이터 삽입 중 오류가 발생했을 때 처리
-//                    Toast.makeText(getContext(), "그룹 생성 실패", Toast.LENGTH_SHORT).show();
-//                });
+        // 그룹 추가
+        db.collection("group")
+                .add(groupdata)
+                .addOnSuccessListener(documentReference -> {
+                    // 그룹 추가 성공 시 처리
+                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    // 데이터 삽입이 성공했을 때 할 작업 추가
+                    Toast.makeText(getContext(), "그룹 생성 완료", Toast.LENGTH_SHORT).show();
+                    // 메인 채팅 화면으로 이동
+
+                })
+                .addOnFailureListener(e -> {
+                    // 그룹 추가 실패 시 처리
+                    Log.e("Firestore", "Error adding document", e);
+                    // 데이터 삽입 중 오류가 발생했을 때 처리
+                    Toast.makeText(getContext(), "그룹 생성 실패", Toast.LENGTH_SHORT).show();
+                });
+
     }
 
 
@@ -178,8 +181,7 @@ public class GroupCreate extends Fragment {
         String oldcode_name = oldcode.getText().toString();
         Bundle bundle = getArguments();
         if (bundle != null) {
-            String userId = bundle.getString("userId");
-            // userId를 사용하여 필요한 작업을 수행
+         uid = bundle.getString("userId");
         }
         // Firestore 인스턴스 가져오기
         FirebaseFirestore db = FirebaseFirestore.getInstance();

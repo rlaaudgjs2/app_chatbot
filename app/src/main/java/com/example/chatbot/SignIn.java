@@ -144,6 +144,7 @@ public class SignIn extends Fragment  {
 
 
                             Bundle bundle = new Bundle();
+                            bundle.putString("uid", document.getId());
                             bundle.putString("userId", id);
                             // Fragment 전환을 위해 아이디 정보를 포함한 Bundle을 인자로 넘김
                             Fragment groupCreate = new GroupCreate();
