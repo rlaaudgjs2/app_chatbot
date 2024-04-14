@@ -13,11 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -37,14 +34,13 @@ import java.util.UUID;
  */
 public class GroupCreate extends Fragment {
     // 아이디 정보
-    private String userId;
     private String uid;
     private Map<String, Object> userInfo = new HashMap<>();
 
     // 새로운  그룹 생성할 때 필요한 데이터
     private EditText new_groupName;
     private String newCode;
-    private String name;
+
 
     // 기존 그룹 입장
     private EditText oldcode;
@@ -114,7 +110,7 @@ public class GroupCreate extends Fragment {
         Bundle bundle = getArguments();
         newCode = UUID.randomUUID().toString().substring(0,10);
         if (bundle != null) {
-            String uid = bundle.getString("uid");
+            final String uid = bundle.getString("uid");
 
             // Firestore 인스턴스 가져오기
             FirebaseFirestore db = FirebaseFirestore.getInstance();

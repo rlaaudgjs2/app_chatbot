@@ -212,12 +212,14 @@ public class SignUp extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
-                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            if(userNickname.isEmpty()){
+                                Toast.makeText(getContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
+                            }
+                            else if (querySnapshot != null && !querySnapshot.isEmpty()) {
                                 //중복 아이디 존재
                                 Toast.makeText(getContext(), "중복하는 닉네임이 있습니다.", Toast.LENGTH_SHORT).show();
                                 duple_checkNickname = 0;
                             } else {
-                                // 중복 아이디 없음
                                 Toast.makeText(getContext(), "사용 가능합니다.", Toast.LENGTH_SHORT).show();
                                 duple_checkNickname = 1;
                             }
@@ -239,7 +241,10 @@ public class SignUp extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
-                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            if(userId.isEmpty()){
+                                Toast.makeText(getContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+                            }
+                            else if (querySnapshot != null && !querySnapshot.isEmpty()) {
                                 //중복 아이디 존재
                                 Toast.makeText(getContext(), "중복하는 아이디가 있습니다.", Toast.LENGTH_SHORT).show();
                                 duple_checkID = 0;
@@ -369,7 +374,7 @@ public class SignUp extends Fragment {
     // 중복 확인 유효성 검사
     private boolean validateDuplicateCheck(int duple_checkID, int duple_checkNickname) {
         if (duple_checkID != 1 || duple_checkNickname != 1) {
-            showToast("아이디 중복확인바랍니다.");
+            showToast("중복확인바랍니다.");
             signUp_id.requestFocus();
             return false;
         }
