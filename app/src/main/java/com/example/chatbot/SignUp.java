@@ -403,7 +403,7 @@ public class SignUp extends Fragment {
                                 // 모든 조건이 만족되었을 때 Firestore에 데이터 추가
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("name", name);
-                                userData.put("nickname", nickname);
+                                userData.put("nickName", nickname);
                                 userData.put("phoneNumber", phoneNumber);
                                 userData.put("id", id);
 
