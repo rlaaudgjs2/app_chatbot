@@ -43,7 +43,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String MY_SECRET_KEY = "비밀키 입력";
+    private static final String MY_SECRET_KEY = "SecretKey";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private RecyclerView recyclerView;
