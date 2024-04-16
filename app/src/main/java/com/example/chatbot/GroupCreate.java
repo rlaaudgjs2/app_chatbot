@@ -27,11 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link GroupCreate#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class GroupCreate extends Fragment {
     // 아이디 정보
     private String uid;
@@ -40,36 +36,22 @@ public class GroupCreate extends Fragment {
     // 새로운  그룹 생성할 때 필요한 데이터
     private EditText new_groupName;
     private String newCode;
+    private Button joinButton;
+    private Button createButton;
 
-
-    // 기존 그룹 입장
     private EditText oldcode;
     private Map<String, Object> groupInfo = new HashMap<>();
 
     private FirebaseFirestore db;
 
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
 
     public GroupCreate() {
         // Required empty public constructor
     }
 
-    public static GroupCreate newInstance(String param1, String param2) {
-        GroupCreate fragment = new GroupCreate();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,8 +68,8 @@ public class GroupCreate extends Fragment {
         new_groupName = view.findViewById(R.id.new_group);
 
 
-        Button createButton = view.findViewById(R.id.button_create);
-        Button joinButton = view.findViewById(R.id.button_join);
+        createButton = view.findViewById(R.id.button_create);
+        joinButton = view.findViewById(R.id.button_join);
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override

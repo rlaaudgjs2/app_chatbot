@@ -41,7 +41,7 @@ public class SignIn extends Fragment  {
     private EditText userPasswordEditText;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_sign_in, container, false); // 'view' 변수를 클래스 전역 변수로 변경
+        view = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -104,11 +104,11 @@ public class SignIn extends Fragment  {
                             // 로그인 성공
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            Toast.makeText(getContext(), "로그인 성공: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "로그인 성공: ",Toast.LENGTH_SHORT).show();
                             groupCheck();
                         } else {
                             // 로그인 실패
-                            Toast.makeText(getContext(), "로그인 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "로그인 실패: "+ "정보를 다시확인해주세요", Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -140,7 +140,7 @@ public class SignIn extends Fragment  {
                         } else {
 
                             // 사용자의 그룹 정보가 없는 경우
-                            Toast.makeText(getContext(), "로그인 실패: " + "그룹이 없어 그룹 생성 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(),  "그룹이 없어 그룹 생성 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
 
 
                             Bundle bundle = new Bundle();
