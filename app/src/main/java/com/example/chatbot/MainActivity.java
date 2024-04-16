@@ -43,7 +43,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String MY_SECRET_KEY = "SecretKey";
+    private static final String MY_SECRET_KEY = "";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private RecyclerView recyclerView;
@@ -186,18 +186,22 @@ public class MainActivity extends AppCompatActivity {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 SignIn signIn = new SignIn();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragment_container, signIn);
+                transaction.replace(R.id.container, signIn);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
 
             private void openDocumentFragment() {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                Document document = new Document();
+                Document documentFragment = (Document) getSupportFragmentManager().findFragmentByTag("DocumentFragment");
+                if (documentFragment == null) {
+                    documentFragment = new Document();
+                }
 
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragment_container, document);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fragment_container, documentFragment, "DocumentFragment");
                 transaction.addToBackStack(null);
+
                 transaction.commit();
             }
 
@@ -212,20 +216,23 @@ public class MainActivity extends AppCompatActivity {
             }
 
             private void openGroupCreateFragment() {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                GroupCreate groupCreateFragment = new GroupCreate();
+                GroupCreate groupCreate = (GroupCreate) getSupportFragmentManager().findFragmentByTag("GroupCreate");
+                if (groupCreate == null) {
+                    groupCreate = new GroupCreate();
+                }
 
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragment_container, groupCreateFragment);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fragment_container, groupCreate, "GroupCreate");
                 transaction.addToBackStack(null);
-                transaction.commit();
 
+                transaction.commit();
 
 
             }
             private void openSignupFragment() {
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                SignUp signUp = new SignUp();
+                FileUpload signUp = new FileUpload();
 
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.replace(R.id.fragment_container, signUp);
