@@ -89,10 +89,10 @@ public class GroupCreate extends Fragment {
 
     private void createNewGroup() {
         String newGroupName = new_groupName.getText().toString();
-        Bundle bundle = getArguments();
         newCode = UUID.randomUUID().toString().substring(0,10);
-        if (bundle != null) {
-            final String uid = bundle.getString("uid");
+
+          UidSingleton singleton = UidSingleton.getInstance();
+          String uid = singleton.getUid();
 
             // Firestore 인스턴스 가져오기
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -166,7 +166,7 @@ public class GroupCreate extends Fragment {
                     Log.d(TAG, "Error getting user document", userTask.getException());
                 }
             });
-        }
+
     }
 
 

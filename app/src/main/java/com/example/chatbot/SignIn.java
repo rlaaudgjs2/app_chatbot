@@ -103,9 +103,11 @@ public class SignIn extends Fragment  {
                         if (task.isSuccessful()) {
                             // 로그인 성공
                             FirebaseUser user = mAuth.getCurrentUser();
-
+                            String uid = user.getUid();
                             Toast.makeText(getContext(), "로그인 성공: ",Toast.LENGTH_SHORT).show();
                             groupCheck();
+                            UidSingleton singleton = UidSingleton.getInstance();
+                            singleton.setUid(uid);
                         } else {
                             // 로그인 실패
                             Toast.makeText(getContext(), "로그인 실패: "+ "정보를 다시확인해주세요", Toast.LENGTH_SHORT).show();
@@ -146,6 +148,7 @@ public class SignIn extends Fragment  {
                             Bundle bundle = new Bundle();
                             bundle.putString("uid", document.getId());
                             bundle.putString("userId", id);
+
                             // Fragment 전환을 위해 아이디 정보를 포함한 Bundle을 인자로 넘김
                             Fragment groupCreate = new GroupCreate();
                             groupCreate.setArguments(bundle);
