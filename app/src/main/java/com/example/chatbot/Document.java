@@ -15,10 +15,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Document extends Fragment {
@@ -53,49 +53,77 @@ public class Document extends Fragment {
 
     private void commitDocument() {
         String text = document_text.getText().toString();
+        GroupSingleton singleton = GroupSingleton.getInstance();
+        String groupuid = singleton.getUid();
+        UidSingleton uidSingleton = UidSingleton.getInstance();
+        String useruid = uidSingleton.getUid();
         if (text.isEmpty()) {
             Toast.makeText(getContext(), "문서집 이름을 작성해주세요", Toast.LENGTH_SHORT).show();
-        } else {
-            UidSingleton singleton = UidSingleton.getInstance();
-            String uid = singleton.getUid();
+        } else if (groupuid == null || groupuid.isEmpty()) {
+            Toast.makeText(getContext(),"사이드바에서 그룹 설정해주세요", Toast.LENGTH_SHORT).show();
+        }else {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference groupRef = db.collection("group").document(groupuid);
+            groupRef.get().addOnCompleteListener(groupTask -> {
+                if (groupTask.isSuccessful()) {
+                    DocumentSnapshot groupDoc = groupTask.getResult();
+                    if (groupDoc.exists()) {
+                        String groupName = groupDoc.getString("groupName");
 
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                DocumentReference userRef = db.collection("users").document(uid);
-                userRef.get().addOnCompleteListener(userTask -> {
-                    if (userTask.isSuccessful()) {
-                        DocumentSnapshot userDoc = userTask.getResult();
-                        if (userDoc.exists()) {
-                            List<Map<String, Object>> groupsList = (List<Map<String, Object>>) userDoc.get("groups");
-                            Map<String, Object> firstGroup = groupsList.get(0);
-                            String groupName = (String) firstGroup.get("groupName");
-                            String name = userDoc.getString("name");
+                        DocumentReference userRef = db.collection("users").document(useruid);
+                        userRef.get().addOnCompleteListener(userTask -> {
+                            if (userTask.isSuccessful()) {
+                                DocumentSnapshot userDoc = userTask.getResult();
+                                if (userDoc.exists()) {
+                                    String userName = userDoc.getString("name");
+                                    Map<String, Object> document = new HashMap<>();
+                                    document.put("folderName", text);
+                                    document.put("groupName", groupName);
+                                    document.put("name", userName);
+                                    db.collection("documents")
+                                            .add(document)
+                                            .addOnSuccessListener(documentReference -> {
+                                                Toast.makeText(getContext(), "새로운 문서집 생성 완료", Toast.LENGTH_SHORT).show();
+                                                String documentID = documentReference.getId();
 
-                            Map<String, Object> document = new HashMap<>();
-                            document.put("folderName", text);
-                            document.put("groupName", groupName);
-                            document.put("userName", name);
 
-                            db.collection("documents")
-                                    .add(document)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(getContext(), "새로운 문서집 생성 완료", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        // 사용자 데이터 업데이트 실패
-                                        Log.e("Firestore", "Error updating user data", e);
-                                        Toast.makeText(getContext(), "사용자 데이터 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            Log.d(TAG, "No such user document");
-                        }
+                                                db.collection("group").document(groupuid)
+                                                        .update("documentFolder", FieldValue.arrayUnion(documentID))
+                                                        .addOnSuccessListener(aVoid -> {
+                                                            Toast.makeText(getContext(), "새로운 문서집 생성 완료", Toast.LENGTH_SHORT).show();
+                                                        })
+                                                        .addOnFailureListener(e -> {
+                                                            // 그룹 문서 업데이트 실패
+                                                            Log.e("Firestore", "Error updating group document", e);
+                                                            Toast.makeText(getContext(), "그룹 문서 업데이트 실패", Toast.LENGTH_SHORT).show();
+                                                        });
+
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // 사용자 데이터 업데이트 실패
+                                                Log.e("Firestore", "Error updating user data", e);
+                                                Toast.makeText(getContext(), "사용자 데이터 업데이트 실패", Toast.LENGTH_SHORT).show();
+                                            });
+                                }
+                            } else {
+                                Log.d(TAG, "No such user document");
+                            }
+                        });
+
+
                     } else {
-                        Log.d(TAG, "Error getting user document", userTask.getException());
+                        Log.d(TAG, "No such user document");
                     }
+                } else {
+                    Log.d(TAG, "Error getting user document", groupTask.getException());
+                }
 
-                });
+            });
+        }
+
+
             }
         }
 
 
 
-}

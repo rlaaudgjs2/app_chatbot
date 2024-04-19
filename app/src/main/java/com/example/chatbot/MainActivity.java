@@ -5,8 +5,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatbot.adapter.MessageAdapter;
 import com.example.chatbot.model.Message;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +39,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -53,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Message> messageList;
     private MessageAdapter messageAdapter;
+    private Spinner groupSpinner;
 
     private OkHttpClient client;
 
@@ -60,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         recyclerView = findViewById(R.id.recycler_view);
         catGpt = findViewById(R.id.cat_gpt);
         submitAnswer = findViewById(R.id.submit_answer);
@@ -128,9 +136,74 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         // 사이드 네브바 구현
         DrawerLayout drawLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.navigation_view);
+        View headerView = navigationView.getHeaderView(0);
+        groupSpinner = headerView.findViewById(R.id.group_spinner);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        UidSingleton singleton = UidSingleton.getInstance();
+        String uid = singleton.getUid();
+        DocumentReference userGroupSetting = db.collection("users").document(uid);
+        userGroupSetting.get().addOnCompleteListener(userTask -> {
+            if (userTask.isSuccessful()) {
+                DocumentSnapshot userDoc = userTask.getResult();
+                if (userDoc.exists()) {
+                    List<Map<String, Object>> groupsList = (List<Map<String, Object>>) userDoc.get("groups");
+                    List<String> groupNames = new ArrayList<>();
+                    groupNames.add("그룹을 선택해주세요");
+                    for (Map<String, Object> group : groupsList) {
+                        String groupName = (String) group.get("groupName");
+                        groupNames.add(groupName);
+                    }
+                    // 여기에 groupNames 리스트를 스피너에 설정하는 코드 추가
+                    ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, groupNames);
+                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    groupSpinner.setAdapter(spinnerAdapter);
+
+                    groupSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                            String selectedGroupName = groupNames.get(position);
+
+                            String enterCode = "";
+                            for (Map<String, Object> group : groupsList) {
+                                String groupName = (String) group.get("groupName");
+                               if(groupName.equals(selectedGroupName)) {
+                                    enterCode = (String) group.get("enterCode");
+                                    break;
+                                }
+                            }
+                            FirebaseFirestore.getInstance()
+                                    .collection("group")
+                                    .whereEqualTo("enterCode", enterCode)
+                                    .get()
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                String uid = document.getId();
+                                                if(!uid.isEmpty()){
+                                                    GroupSingleton groupSingleton = GroupSingleton.getInstance();
+                                                    groupSingleton.setUid(uid);
+                                                }
+                                            }
+                                        } else {
+                                            Log.d("Firestore", "Error getting documents: ", task.getException());
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+                    });
+                }
+            }
+
+        });
+
 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
                 MainActivity.this,

@@ -128,7 +128,6 @@ public class GroupCreate extends Fragment {
                                     // 그룹 추가 성공
                                     Toast.makeText(getContext(), newGroupName+ " "+ "그룹 생성이 완료되었습니다.", Toast.LENGTH_SHORT).show();
 
-
                                     // 사용자의 그룹 목록 업데이트
                                     Map<String, Object> groupInfo = new HashMap<>();
                                     groupInfo.put("enterCode", newCode);
