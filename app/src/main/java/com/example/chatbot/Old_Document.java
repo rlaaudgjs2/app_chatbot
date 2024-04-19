@@ -5,32 +5,42 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Old_Document extends Fragment {
 
     private static final int PICK_FILE_REQUEST = 1;
     private Uri selectedFileUri;
-
+    private List<Uri> fileUris = new ArrayList<>();
     private TextView viewFilename;
-    private Button selectFileButton;
-    private Button uploadButton;
-    private Button document_delete;
+    private Spinner documentSpinner;
+    private String selectedFolderName;
 
     public Old_Document() {
-        // Required empty public constructor
     }
 
     @Override
@@ -38,70 +48,46 @@ public class Old_Document extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_old__document, container, false);
 
-        // Initialize views
         viewFilename = view.findViewById(R.id.viewFilename);
+        documentSpinner = view.findViewById(R.id.documentSpinner);
 
-        // Set click listener for selectFileButton
-        view.findViewById(R.id.selectFileButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showFileChooser();
-            }
-        });
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        documentSpinner.setAdapter(spinnerAdapter);
+        loadSpinnerData(spinnerAdapter);
 
-        // Set click listener for uploadButton
-        view.findViewById(R.id.uploadButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 선택된 파일이 있으면 업로드 진행
-                if (selectedFileUri != null) {
-                    uploadFile(selectedFileUri);
-                } else {
-                    Toast.makeText(getActivity(), "Please select a file first", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        view.findViewById(R.id.selectFileButton).setOnClickListener(v -> showFileChooser());
+        view.findViewById(R.id.uploadButton).setOnClickListener(v -> uploadFiles());
 
         return view;
     }
 
-    // Method to show file chooser dialog
-    private void showFileChooser() {
-        Log.e("FileUpload", "showFileChooser() 호출");
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/pdf"); // Only PDF files
-        startActivityForResult(intent, PICK_FILE_REQUEST);
+    private void loadSpinnerData(ArrayAdapter<String> spinnerAdapter) {
+        // 데이터베이스에서 spinner에 표시될 데이터 가져오는 코드
     }
 
-    // Method to handle file selection result
+    private void showFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "파일 선택"), PICK_FILE_REQUEST);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data != null && data.getData() != null) {
                 selectedFileUri = data.getData();
-                // Check if the selected file is a PDF
-                String mimeType = getActivity().getContentResolver().getType(selectedFileUri);
-                if (mimeType != null && mimeType.equals("application/pdf")) {
-                    // 파일명을 TextView에 설정
                     String selectedFileName = getFileName(selectedFileUri);
                     viewFilename.setText(selectedFileName);
-                } else {
-                    // Show warning message for invalid file type
-                    Toast.makeText(getActivity(), "Only PDF files are allowed", Toast.LENGTH_SHORT).show();
-                }
+                    fileUris.add(selectedFileUri);
+
             }
         }
     }
 
-    // Method to upload file
-    private void uploadFile(Uri fileUri) {
-        File file = new File(fileUri.getPath());
-        // 파일 업로드 로직을 여기에 추가합니다.
-    }
 
-    // Method to get file name from Uri
     private String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
@@ -121,4 +107,68 @@ public class Old_Document extends Fragment {
         }
         return result;
     }
+
+    private void uploadFiles() {
+        if (fileUris.isEmpty()) {
+            Toast.makeText(getActivity(), "파일을 선택해주세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:8002/upload/")// 서버 주소 입력
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        FileUploadService service = retrofit.create(FileUploadService.class);
+
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+
+        for (Uri uri : fileUris) {
+            String filePath = getPathFromUri(uri);
+            if (filePath != null) {
+                File file = new File(filePath);
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                builder.addFormDataPart("files", file.getName(), requestFile);
+            }
+        }
+
+        String groupName = "groupName"; // 그룹 이름
+        String folderName = "folderName"; // 폴더 이름
+        builder.addFormDataPart("text", groupName + folderName);
+
+        MultipartBody requestBody = builder.build();
+
+        Call<Void> call = service.uploadFiles(requestBody);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "파일 업로드 성공", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "파일 업로드 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getActivity(), "네트워크 오류 발생",Toast.LENGTH_SHORT).show();
+                Log.e("API_CALL", "네트워크 오류 발생: " + t.getMessage());
+            }
+        });
+    }
+    private String getPathFromUri(Uri uri) {
+        String filePath = null;
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            filePath = cursor.getString(columnIndex);
+            cursor.close();
+        }
+        return filePath;
+    }
+
+
 }
