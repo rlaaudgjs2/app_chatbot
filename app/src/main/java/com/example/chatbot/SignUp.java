@@ -1,7 +1,11 @@
 package com.example.chatbot;
 
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,14 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SignUp#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SignUp extends Fragment {
 
-    private Map<String, String> parameters;
     private EditText signUp_id;
     private EditText signUp_password;
     private EditText signUp_password_duple;
@@ -43,69 +41,27 @@ public class SignUp extends Fragment {
     private EditText signUp_phone_number;
 
     private int duple_checkID;
-
-    private TextView signin_change;
-
     private int duple_checkNickname;
 
+    private TextView signin_change;
     private Button duple_check_name;
     private Button duple_check_id;
     private Button signUpButton;
 
-
     private Pattern checkId = Pattern.compile("[ㄱ-ㅎㅏ-ㅣ가-힣~₩!@#$%^&*()+._=,/\"':;'><]");
-
     private Pattern specialPattern = Pattern.compile("[!@#$%^&*()_+\\-=\\\\|{}\\[\\]:\";'<>?,./]");
     private Pattern number = Pattern.compile("[0-9]");
     private Pattern english = Pattern.compile("[a-z]");
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public SignUp() {
-
-
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SignUp.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SignUp newInstance(String param1, String param2) {
-        SignUp fragment = new SignUp();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+
         signUp_name = view.findViewById(R.id.signUp_name);
         signUp_nickname = view.findViewById(R.id.signUp_nickname);
         signUp_phone_number = view.findViewById(R.id.signUp_phone_number);
@@ -115,91 +71,24 @@ public class SignUp extends Fragment {
         duple_check_id = view.findViewById(R.id.duple_check_id);
         duple_check_name = view.findViewById(R.id.duple_check_name);
         signin_change = view.findViewById(R.id.signup_change);
-
-        signin_change.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment signIn = new SignIn();
-                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.container, signIn);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
-
-        signUp_phone_number.addTextChangedListener(new TextWatcher() {
-            private boolean isFormatting;
-            private StringBuilder formmatPhonenum;
-            int cur_start;
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                s = "010";
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                cur_start = start;
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (isFormatting) {
-                    return;
-                }
-
-                // 포맷 변경 중인 경우 true로 설정하여 재귀 호출 방지
-                isFormatting = true;
-
-                // 입력된 전화번호를 포맷에 맞게 변경
-                String inputPhoneNumber = s.toString().replaceAll("[^\\d]", ""); // 숫자만 남기고 제거
-                formmatPhonenum = new StringBuilder();
-
-                int length = inputPhoneNumber.length();
-                for (int i = 0; i < length; i++) {
-                    formmatPhonenum.append(inputPhoneNumber.charAt(i));
-                    if (cur_start == 13) {
-                        if (formmatPhonenum.length() == 3 || formmatPhonenum.length() == 8) {
-                            // 전화번호 포맷에 맞게 "-" 추가
-                            formmatPhonenum.append("-");
-                        }
-                    }
-                }
-
-                // 포맷된 전화번호를 EditText에 설정
-                signUp_phone_number.setText(formmatPhonenum.toString());
-                signUp_phone_number.setSelection(formmatPhonenum.length()); // 커서 위치 조정
-
-                // 포맷 변경 완료 후 isFormatting을 false로 설정하여 다시 입력 가능하도록 함
-                isFormatting = false;
-            }
-        });
-
         signUpButton = view.findViewById(R.id.signUp_button);
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                newUsersignup();
-            }
+
+        signin_change.setOnClickListener(v -> {
+            Fragment signIn = new SignIn();
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.container, signIn);
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
 
-        duple_check_id.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dupleCheckID();
-            }
-        });
 
-        duple_check_name.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dupleCheckName();
-            }
-        });
+        signUpButton.setOnClickListener(v -> newUsersignup());
+        duple_check_id.setOnClickListener(v -> dupleCheckID());
+        duple_check_name.setOnClickListener(v -> dupleCheckName());
 
-        return view; // View 객체 반환
+        return view;
     }
+
 
     private void dupleCheckName() {
         String userNickname = signUp_nickname.getText().toString();
@@ -207,25 +96,21 @@ public class SignUp extends Fragment {
         db.collection("users")
                 .whereEqualTo("nickName", userNickname)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if(userNickname.isEmpty()){
-                                Toast.makeText(getContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
-                            }
-                            else if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                //중복 아이디 존재
-                                Toast.makeText(getContext(), "중복하는 닉네임이 있습니다.", Toast.LENGTH_SHORT).show();
-                                duple_checkNickname = 0;
-                            } else {
-                                Toast.makeText(getContext(), "사용 가능합니다.", Toast.LENGTH_SHORT).show();
-                                duple_checkNickname = 1;
-                            }
-                        } else {
-                            Log.e("FirebaseError", "에러 데이터", task.getException());
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if(userNickname.isEmpty()){
+                            showToast("닉네임을 입력해주세요");
                         }
+                        else if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            showToast("중복하는 닉네임이 있습니다.");
+                            duple_checkNickname = 0;
+                        } else {
+                            showToast("사용 가능합니다.");
+                            duple_checkNickname = 1;
+                        }
+                    } else {
+                        Log.e("FirebaseError", "에러 데이터", task.getException());
                     }
                 });
     }
@@ -236,42 +121,34 @@ public class SignUp extends Fragment {
         db.collection("users")
                 .whereEqualTo("id", userId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if(userId.isEmpty()){
-                                Toast.makeText(getContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
-                            }
-                            else if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                //중복 아이디 존재
-                                Toast.makeText(getContext(), "중복하는 아이디가 있습니다.", Toast.LENGTH_SHORT).show();
-                                duple_checkID = 0;
-                            } else {
-                                // 중복 아이디 없음
-                                Toast.makeText(getContext(), "사용 가능합니다.", Toast.LENGTH_SHORT).show();
-                                duple_checkID = 1;
-                            }
-                        } else {
-                            Log.e("FirebaseError", "에러 데이터", task.getException());
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if(userId.isEmpty()){
+                            showToast("아이디를 입력해주세요");
                         }
+                        else if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            showToast("중복하는 아이디가 있습니다.");
+                            duple_checkID = 0;
+                        } else {
+                            showToast("사용 가능합니다.");
+                            duple_checkID = 1;
+                        }
+                    } else {
+                        Log.e("FirebaseError", "에러 데이터", task.getException());
                     }
                 });
     }
 
-    // 이름 유효성 검사
     private boolean validateName(String name) {
         if (name.isEmpty()) {
             showToast("이름이 입력되지 않았습니다.");
             signUp_name.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 닉네임 유효성 검사
     private boolean validateNickname(String nickname) {
         if (nickname.isEmpty()) {
             showToast("닉네임이 입력되지 않았습니다.");
@@ -298,27 +175,24 @@ public class SignUp extends Fragment {
             signUp_nickname.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 전화번호 유효성 검사
     private boolean validatePhoneNumber(String phoneNumber) {
         if (phoneNumber.isEmpty()) {
             showToast("전화번호가 입력되지 않았습니다.");
             signUp_phone_number.requestFocus();
             return false;
         }
-        if (phoneNumber.length() < 13) {
-            showToast("올바른 형식이 아닙니다.");
+        String digitsOnly = phoneNumber.replaceAll("\\D", "");
+        if (digitsOnly.length() != 11 || !digitsOnly.startsWith("010")) {
+            showToast("올바른 전화번호 형식이 아닙니다. (010-XXXX-XXXX)");
             signUp_phone_number.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 아이디 유효성 검사
     private boolean validateId(String id) {
         if (id.isEmpty()) {
             showToast("아이디가 입력되지 않았습니다.");
@@ -335,11 +209,9 @@ public class SignUp extends Fragment {
             signUp_id.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 비밀번호 유효성 검사
     private boolean validatePassword(String password) {
         if (password.isEmpty()) {
             showToast("비밀번호가 입력되지 않았습니다.");
@@ -356,33 +228,27 @@ public class SignUp extends Fragment {
             signUp_password.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 비밀번호 확인 유효성 검사
     private boolean validatePasswordConfirmation(String password, String passwordDuple) {
         if (!password.equals(passwordDuple)) {
             showToast("비밀번호가 같지 않습니다.");
             signUp_password_duple.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 중복 확인 유효성 검사
     private boolean validateDuplicateCheck(int duple_checkID, int duple_checkNickname) {
         if (duple_checkID != 1 || duple_checkNickname != 1) {
             showToast("중복확인바랍니다.");
             signUp_id.requestFocus();
             return false;
         }
-        // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
         return true;
     }
 
-    // 토스트 메시지 표시
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
@@ -395,7 +261,6 @@ public class SignUp extends Fragment {
         String password = signUp_password.getText().toString();
         String passwordDuple = signUp_password_duple.getText().toString();
 
-        // 각 입력 필드의 유효성 검사
         if (validateName(name) && validateNickname(nickname) && validatePhoneNumber(phoneNumber) &&
                 validateId(id) && validatePassword(password) && validatePasswordConfirmation(password, passwordDuple) &&
                 validateDuplicateCheck(duple_checkID, duple_checkNickname)) {
@@ -405,19 +270,17 @@ public class SignUp extends Fragment {
                         if (task.isSuccessful()) {
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             if (user != null) {
-                                // 모든 조건이 만족되었을 때 Firestore에 데이터 추가
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("name", name);
                                 userData.put("nickName", nickname);
                                 userData.put("phoneNumber", phoneNumber);
                                 userData.put("id", id);
 
-                                // Firestore 데이터베이스의 'users' 컬렉션에 새 문서 추가
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 db.collection("users")
                                         .document(user.getUid())
                                         .set(userData)
-                                        .addOnSuccessListener(documentReference -> {
+                                        .addOnSuccessListener(aVoid -> {
                                             showToast("Cats가입이 되셨습니다!");
                                             showToast("로그인 페이지로 이동합니다.");
                                             Fragment signIn = new SignIn();
@@ -425,15 +288,13 @@ public class SignUp extends Fragment {
                                             transaction.replace(R.id.container,signIn);
                                             transaction.addToBackStack(null);
                                             transaction.commit();
-                                            // 데이터 삽입이 성공했을 때 할 작업 추가
                                         })
                                         .addOnFailureListener(e -> {
                                             Log.e("Firestore", "Error adding document", e);
-                                            // 데이터 삽입 중 오류가 발생했을 때 처리
+                                            showToast("회원가입 중 오류가 발생했습니다.");
                                         });
                             }
                         } else {
-                            // 회원가입 실패 처리
                             showToast("회원가입에 실패하였습니다: " + task.getException().getMessage());
                         }
                     });

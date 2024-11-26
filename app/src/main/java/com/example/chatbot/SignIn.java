@@ -104,7 +104,7 @@ public class SignIn extends Fragment  {
                             // 로그인 성공
                             FirebaseUser user = mAuth.getCurrentUser();
                             String uid = user.getUid();
-                            Toast.makeText(getContext(), "로그인 성공: ",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "환영합니다",Toast.LENGTH_SHORT).show();
                             groupCheck();
                             UidSingleton singleton = UidSingleton.getInstance();
                             singleton.setUid(uid);
@@ -134,7 +134,7 @@ public class SignIn extends Fragment  {
                         // 해당 사용자의 문서를 찾음
                         Map<String, Object> userData = document.getData();
                         if (userData != null && userData.containsKey("groups")) {
-                            Intent intent = new Intent(requireContext(), MainActivity.class);
+                            Intent intent = new Intent(requireContext(), MainChat.class);
                             startActivity(intent);
                             // 현재 Fragment 종료
                             requireActivity().finish();

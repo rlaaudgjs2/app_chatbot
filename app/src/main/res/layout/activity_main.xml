@@ -7,32 +7,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/brown"
-    tools:context=".MainActivity">
-
+    tools:context=".MainChat"
+    android:fitsSystemWindows="true">
 
     <!-- 본문 레이아웃 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"> <!-- 시스템 창 영역을 고려 -->
 
         <!-- RecyclerView -->
-
-        <!-- TextView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/bottom_layout"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_bias="1.0"
             tools:layout_editor_absoluteX="0dp" />
 
+        <!-- TextView -->
         <TextView
+            android:id="@+id/cat_gpt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/cat_gpt"
             android:text="Cat gpt"
             android:gravity="center"
             android:textSize="28sp"
@@ -62,11 +60,7 @@
                 android:layout_marginBottom="4dp"
                 android:singleLine="true"
                 android:hint="물어보고 싶은 내용을 입력하세요"
-                android:textColorHint="#A64732"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
+                android:textColorHint="#A64732" />
 
             <!-- ImageButton -->
             <ImageButton
@@ -77,21 +71,21 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="7dp"
                 android:layout_marginBottom="25dp"
-                android:background="@drawable/submit"
-                app:layout_constraintStart_toEndOf="@+id/submit_answer" />
+                android:background="@drawable/submit" />
 
         </RelativeLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Fragment Container -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" />
 
+    <!-- Side Navigation -->
     <include layout="@layout/app_sidebar" />
-
 
     <!-- NavigationView -->
     <com.google.android.material.navigation.NavigationView
@@ -100,6 +94,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/header_layout"
-        app:menu="@menu/sidebar_menu" />
+        app:menu="@menu/sidebar_menu"
+        android:fitsSystemWindows="true" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -21,4 +21,7 @@ public class UidSingleton {
     public void setUid(String uid) {
         this.uid = uid;
     }
+    public void reset() { //로그아웃
+        this.uid = null;
+    }
 }

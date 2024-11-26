@@ -2,13 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/group_setting"
-        android:title="그룹 설정" />
-    <item
         android:id="@+id/document"
         android:title="문서집" />
     <item
-        android:id="@+id/new_chat"
+        android:id="@+id/chat_list"
         android:title="채팅 목록" />
     <item
         android:id="@+id/info_setting"

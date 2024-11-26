@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Document extends Fragment {
+public class NewDocumentGroup extends Fragment {
     private EditText document_text;
     private Button document_commit;
 
 
-    public Document() {
-        // Required empty public constructor
+    public NewDocumentGroup() {
+
     }
 
     @Override

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,7 @@ import java.util.UUID;
 public class GroupCreate extends Fragment {
     // 아이디 정보
     private String uid;
+
     private Map<String, Object> userInfo = new HashMap<>();
 
     // 새로운  그룹 생성할 때 필요한 데이터
@@ -144,7 +146,7 @@ public class GroupCreate extends Fragment {
                                                 // MainActivity로 이동
                                                 Activity currentActivity = getActivity();
                                                 if (currentActivity != null) {
-                                                    Intent intent = new Intent(currentActivity, MainActivity.class);
+                                                    Intent intent = new Intent(currentActivity, MainChat.class);
                                                     currentActivity.startActivity(intent);
                                                 }
                                             })

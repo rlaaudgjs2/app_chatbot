@@ -24,17 +24,29 @@
 
 
     <TextView
-        android:id="@+id/txt_newGroup"
+        android:id="@+id/txt_currentDocument"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="현재 문서집"
         android:textSize="25dp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.417"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.433" />
+    <TextView
+        android:id="@+id/documentTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="문서집 설정이 되지 않았습니다"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/txt_currentDocument"
+        app:layout_constraintStart_toStartOf="@id/txt_currentDocument"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txt_oldGroup"
@@ -105,12 +117,17 @@
         app:layout_constraintLeft_toLeftOf="@+id/viewFilename"
         />
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="409dp"
+    <ProgressBar
+        android:id="@+id/uploadProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="-56dp"
-        tools:layout_editor_absoluteY="382dp" />
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/uploadButton"
+        app:layout_constraintLeft_toLeftOf="@+id/viewFilename"
+        app:layout_constraintRight_toRightOf="@+id/selectFileButton"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
