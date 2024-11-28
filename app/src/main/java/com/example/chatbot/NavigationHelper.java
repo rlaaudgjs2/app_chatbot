@@ -37,7 +37,7 @@ public class NavigationHelper {
             int id = menuItem.getItemId();
 
             if (id == R.id.document) {
-                openFragment(fragmentManager, new NewDocumentGroup());
+                openFragment(fragmentManager, new CreateDocument());
             } else if (id == R.id.chat_list) {
                 openFragment(fragmentManager, new ChatList());
             } else if (id == R.id.info_setting) {

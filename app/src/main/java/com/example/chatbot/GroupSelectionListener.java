@@ -38,9 +38,11 @@ public class GroupSelectionListener implements android.widget.AdapterView.OnItem
         String selectedGroup = (String) parent.getItemAtPosition(position);
         if (!"그룹 선택".equals(selectedGroup)) {
             loadDocumentsForGroup(selectedGroup);
+            SidebarSingleton.getInstance().setSelectedGroupName(selectedGroup);
 
         } else {
             clearDocuments();
+            SidebarSingleton.getInstance().setSelectedGroupName(null);
         }
     }
 
@@ -55,7 +57,7 @@ public class GroupSelectionListener implements android.widget.AdapterView.OnItem
     private void loadUserGroups() {
         String userId = UidSingleton.getInstance().getUid(); // 사용자 UID 가져오기
         if (userId == null || userId.isEmpty()) {
-            Toast.makeText(context, "사용자 인증이 필요합니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -130,14 +132,12 @@ public class GroupSelectionListener implements android.widget.AdapterView.OnItem
                             if (position != 0) { // "문서 선택" 항목이 아닌 경우
                                 String selectedFolderName = folderNames.get(position);
 
-                                // Old_Document 프래그먼트를 찾고 데이터 업데이트
-                                FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
-                                Old_Document oldDocumentFragment = (Old_Document) fragmentManager.findFragmentById(R.id.fragment_container); // Old_Document가 추가된 컨테이너 ID
-                                if (oldDocumentFragment != null) {
-                                    oldDocumentFragment.updateDocumentTitle(selectedFolderName); // TextView 업데이트
-                                } else {
-                                    Log.e("FragmentError", "Old_Document 프래그먼트를 찾을 수 없습니다.");
-                                }
+                                // Singleton에 문서 이름 저장
+                                SidebarSingleton.getInstance().setSelectedFolderName(selectedFolderName);
+
+                                // Old_Document 관련 코드 제거
+                            } else {
+                                SidebarSingleton.getInstance().setSelectedFolderName(null); // 선택 해제
                             }
                         }
 
@@ -146,6 +146,7 @@ public class GroupSelectionListener implements android.widget.AdapterView.OnItem
                             // 아무 항목도 선택되지 않은 경우 처리 필요 없음
                         }
                     });
+
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FirebaseError", "문서 데이터 로드 실패", e);

@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NewDocumentGroup extends Fragment {
+public class CreateDocument extends Fragment {
     private EditText document_text;
     private Button document_commit;
 
 
-    public NewDocumentGroup() {
+    public CreateDocument() {
 
     }
 
@@ -66,14 +66,32 @@ public class NewDocumentGroup extends Fragment {
                         DocumentSnapshot userDoc = userTask.getResult();
                         if (userDoc.exists()) {
                             List<Map<String, Object>> groupsList = (List<Map<String, Object>>) userDoc.get("groups");
-                            Map<String, Object> firstGroup = groupsList.get(0);
-                            String groupName = (String) firstGroup.get("groupName");
-                            String name = userDoc.getString("name");
 
+                            if (groupsList == null || groupsList.isEmpty()) {
+                                Toast.makeText(getContext(), "그룹 정보가 없습니다. 메뉴에서 그룹을 설정해주세요.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                                // SidebarSingleton에서 선택된 그룹 이름 가져오기
+                            String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
+
+                            if (groupName == null || groupName.isEmpty()) {
+                                Toast.makeText(getContext(), "메뉴에서 그룹을 설정해주세요.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                                // 사용자 이름 가져오기
+                            String name = userDoc.getString("name");
+                            if (name == null || name.isEmpty()) {
+                                name = "Unknown User"; // 사용자 이름이 없을 경우 기본값 설정
+                            }
+
+                            // Firestore에 저장할 데이터 구성
                             Map<String, Object> document = new HashMap<>();
                             document.put("folderName", text);
                             document.put("groupName", groupName);
                             document.put("userName", name);
+
 
                             db.collection("documents")
                                     .add(document)

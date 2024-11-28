@@ -73,7 +73,12 @@ public class Old_Document extends Fragment {
         uploadButton = view.findViewById(R.id.uploadButton);
         uploadProgressBar = view.findViewById(R.id.uploadProgressBar);
         documentTitleView = view.findViewById(R.id.documentTitle);
+        String selectedFolderName = SidebarSingleton.getInstance().getSelectedFolderName();
 
+        // Singleton 값이 존재하면 UI 업데이트
+        if (selectedFolderName != null && !selectedFolderName.isEmpty()) {
+            documentTitleView.setText(selectedFolderName);
+        }
         selectFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
