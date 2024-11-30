@@ -29,4 +29,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_chat" />
 
+    <!-- Warning Message -->
+    <TextView
+        android:id="@+id/warning_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="그룹과 문서집을 설정해주세요."
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/chatToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

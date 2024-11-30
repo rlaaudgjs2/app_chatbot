@@ -1,5 +1,7 @@
 package com.example.chatbot;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -35,8 +37,11 @@ public class NavigationHelper {
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
-
-            if (id == R.id.document) {
+            if(id == R.id.mainChat){
+                Intent intent = new Intent(context, MainChat.class);
+                context.startActivity(intent);
+            }
+            else if (id == R.id.document) {
                 openFragment(fragmentManager, new CreateDocument());
             } else if (id == R.id.chat_list) {
                 openFragment(fragmentManager, new ChatList());
