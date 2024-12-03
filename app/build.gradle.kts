@@ -36,11 +36,7 @@ android {
 }
 
 dependencies {
-    implementation (platform("com.google.firebase:firebase-bom:32.8.0"))
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-
-    // Add the dependency for the Firebase SDK for Google Analytics
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("com.google.firebase:firebase-storage:20.2.1")
@@ -53,7 +49,7 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.10.0")
     implementation ("com.google.gms:google-services:4.3.15")
     implementation ("com.google.firebase:firebase-auth:22.0.0")
-    implementation ("com.google.firebase:firebase-bom:32.0.0")
+    implementation (platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")

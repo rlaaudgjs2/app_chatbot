@@ -69,23 +69,16 @@ public class NavigationHelper {
             return;
         }
 
-        // 사용자 이름 가져오기
         db.collection("users")
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        // 사용자 이름 설정
                         String userName = documentSnapshot.getString("nickName");
                         userNameTextView.setText(userName != null ? userName : "알 수 없는 사용자");
-                    }
-                })
-                .addOnFailureListener(e -> Log.e("FirebaseError", "사용자 이름 로드 실패", e));
 
-        db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
+                        // 그룹 리스트 설정
                         List<Map<String, Object>> groupList = (List<Map<String, Object>>) documentSnapshot.get("groups");
                         if (groupList != null) {
                             List<String> groups = new ArrayList<>();
@@ -106,9 +99,9 @@ public class NavigationHelper {
                         }
                     }
                 })
-                .addOnFailureListener(e -> Log.e("FirebaseError", "사용자 그룹 로드 실패", e));
+                .addOnFailureListener(e -> Log.e("FirebaseError", "사용자 데이터 로드 실패", e));
+    }
 
-        }
 
     private static void openFragment(FragmentManager fragmentManager, androidx.fragment.app.Fragment fragment) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
