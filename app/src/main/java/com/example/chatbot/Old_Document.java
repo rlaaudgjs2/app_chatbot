@@ -19,11 +19,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.chatbot.utils.FileUtils;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.chatbot.network.ApiClient;
+import com.example.chatbot.network.ApiService;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okio.BufferedSink;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Old_Document extends Fragment {
 
@@ -117,7 +131,6 @@ public class Old_Document extends Fragment {
         String fileName = getFileName(fileUri);
         String folderName = SidebarSingleton.getInstance().getSelectedFolderName();
         String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
-        String userName = UidSingleton.getInstance().getUid();
 
         if (folderName == null || folderName.isEmpty() || groupName == null || groupName.isEmpty()) {
             Toast.makeText(getActivity(), "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
@@ -125,35 +138,113 @@ public class Old_Document extends Fragment {
             return;
         }
 
-        // Firestore에 데이터 저장
-        Map<String, Object> documentData = new HashMap<>();
-        documentData.put("folderName", folderName);
-        documentData.put("groupName", groupName);
-        documentData.put("userName", userName);
-
-        // Firestore에서 파일 리스트 업데이트
-        db.collection("documents")
-                .document(folderName + "_" + groupName) // 폴더명과 그룹명을 조합하여 문서 식별
-                .update("file", FieldValue.arrayUnion(fileName)) // 기존 배열에 새 파일 추가
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getActivity(), "파일이 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
-                    uploadProgressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    // 문서가 없으면 새로 생성
-                    documentData.put("file", FieldValue.arrayUnion(fileName));
-                    db.collection("documents")
-                            .document(folderName + "_" + groupName)
-                            .set(documentData)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getActivity(), "파일이 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
-                                uploadProgressBar.setVisibility(View.GONE);
-                            })
-                            .addOnFailureListener(e2 -> {
-                                Toast.makeText(getActivity(), "파일 저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                                uploadProgressBar.setVisibility(View.GONE);
-                                Log.e(TAG, "Firestore 저장 실패", e2);
-                            });
-                });
+        try {
+            // Google Drive URI인지 확인
+            if (fileUri.getAuthority() != null && fileUri.getAuthority().contains("com.google.android.apps.docs.storage")) {
+                // Google Drive 파일 처리
+                handleGoogleDriveFile(fileUri, fileName, folderName);
+            } else {
+                // 로컬 파일 처리
+                handleLocalFile(fileUri, fileName, folderName);
+            }
+        } catch (Exception e) {
+            Log.e("FileUploadError", "Upload failed", e);
+            Toast.makeText(getActivity(), "파일 처리 중 오류 발생: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            uploadProgressBar.setVisibility(View.GONE);
+        }
     }
+    private void handleGoogleDriveFile(Uri fileUri, String fileName, String folderName) {
+        try {
+            InputStream inputStream = getActivity().getContentResolver().openInputStream(fileUri);
+
+            if (inputStream == null) {
+                Toast.makeText(getActivity(), "Google Drive 파일을 읽을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                uploadProgressBar.setVisibility(View.GONE);
+                return;
+            }
+
+            // InputStream 기반 RequestBody 생성
+            RequestBody requestBody = createStreamRequestBody(inputStream);
+
+            MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestBody);
+            RequestBody indexName = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
+
+            uploadToServer(body, indexName);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Google Drive 파일 처리 중 오류 발생.", Toast.LENGTH_SHORT).show();
+            uploadProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private RequestBody createStreamRequestBody(final InputStream inputStream) {
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return MediaType.parse("application/octet-stream");
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                try {
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        sink.write(buffer, 0, bytesRead);
+                    }
+                } finally {
+                    inputStream.close(); // 스트림은 여기서만 닫음
+                }
+            }
+        };
+    }
+
+    private void handleLocalFile(Uri fileUri, String fileName, String folderName) {
+        String filePath = FileUtils.getPath(getActivity(), fileUri);
+
+        if (filePath == null) {
+            Toast.makeText(getActivity(), "로컬 파일 경로를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            uploadProgressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        File file = new File(filePath);
+        RequestBody requestFile = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestFile);
+        RequestBody indexName = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
+
+        uploadToServer(body, indexName);
+    }
+
+    private void uploadToServer(MultipartBody.Part body, RequestBody indexName) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<Void> call = apiService.uploadFile(body, indexName);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "파일 업로드 성공!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "업로드 실패: " + response.message(), Toast.LENGTH_SHORT).show();
+                    Log.d("error",response.message());
+                }
+                uploadProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("UploadError", "Error: ", t);
+                Toast.makeText(getActivity(), "업로드 중 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                uploadProgressBar.setVisibility(View.GONE);
+            }
+        });
+    }
+
+
+
+
+
 }

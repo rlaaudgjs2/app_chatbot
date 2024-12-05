@@ -44,7 +44,7 @@ import okhttp3.ResponseBody;
 public class MainChat extends AppCompatActivity {
 
     private static final String TAG = "MainChat";
-    private static final String SERVER_URL = "http://10.0.2.2:8080/api/chat";
+
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private DrawerLayout drawerLayout;
@@ -59,7 +59,6 @@ public class MainChat extends AppCompatActivity {
 
     private OkHttpClient client;
     private FirebaseFirestore db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,15 +101,13 @@ public class MainChat extends AppCompatActivity {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                // 사이드바가 닫힌 후에도 Enter 기능 활성화
-                enableEnterKey(true);
-                syncWithServer();
+                checkGroupAndDocumentSettings(); // 사이드바 닫힐 때 설정 체크
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                enableEnterKey(false); // 사이드바 열릴 때 Enter 비활성화
+                enableInteraction(false); // 사이드바 열릴 때 비활성화
             }
         };
         drawerLayout.addDrawerListener(toggle);
@@ -127,10 +124,26 @@ public class MainChat extends AppCompatActivity {
             }
             return false;
         });
+
+        // 초기화 상태에서 그룹과 문서 설정 확인
+        checkGroupAndDocumentSettings();
     }
 
-    private void enableEnterKey(boolean enabled) {
+    private void checkGroupAndDocumentSettings() {
+        boolean isSet = isGroupAndDocumentSet();
+        enableInteraction(isSet);
+        if (isSet) {
+            Log.d(TAG, "그룹 및 문서 설정 완료: 작업 가능.");
+        } else {
+            Log.w(TAG, "그룹 및 문서 설정 필요: 작업 불가.");
+            Toast.makeText(this, "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void enableInteraction(boolean enabled) {
         submitAnswer.setEnabled(enabled);
+        submitButton.setEnabled(enabled);
+        submitButton.setAlpha(enabled ? 1.0f : 0.5f); // 비활성화 시 투명도 낮추기
     }
 
     private void handleUserInput() {
@@ -146,6 +159,12 @@ public class MainChat extends AppCompatActivity {
         }
     }
 
+    private boolean isGroupAndDocumentSet() {
+        String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
+        String folderName = SidebarSingleton.getInstance().getSelectedFolderName();
+        return groupName != null && !groupName.isEmpty() && folderName != null && !folderName.isEmpty();
+    }
+
     private void fetchFilesFromFirebaseAndSend(String query) {
         String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
         String folderName = SidebarSingleton.getInstance().getSelectedFolderName();
@@ -157,71 +176,53 @@ public class MainChat extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            List<String> files = (List<String>) document.get("file");
-                            if (files != null) {
-                                sendToServer(files, folderName, groupName, query);
-                            } else {
-                                addToChat("파일이 없습니다.", Message.SENT_BY_BOT);
-                            }
+                            sendChatRequest(query, groupName, folderName);
+
                         }
                     } else {
                         addToChat("문서를 찾을 수 없습니다.", Message.SENT_BY_BOT);
                     }
                 });
-
     }
 
-    private void sendToServer(List<String> files, String folderName, String groupName, String query) {
-        JSONObject requestBody = new JSONObject();
+    private void sendChatRequest(String query, String groupName, String folderName) {
         try {
-            requestBody.put("folderName", folderName);
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("text", query);
             requestBody.put("groupName", groupName);
-            requestBody.put("files", new JSONArray(files));
-            requestBody.put("query", query);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
+            requestBody.put("folderName", folderName);
 
-        Request request = new Request.Builder()
-                .url(SERVER_URL)
-                .post(RequestBody.create(requestBody.toString(), JSON))
-                .build();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                runOnUiThread(() -> Toast.makeText(MainChat.this, "서버 요청 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
+            Request request = new Request.Builder()
+                    .url("http://10.0.2.2:8080/api/chat")
+                    .post(RequestBody.create(requestBody.toString(), JSON))
+                    .build();
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (response.isSuccessful() && responseBody != null) {
-                        String serverResponse = responseBody.string();
-                        addToChat(serverResponse.trim(), Message.SENT_BY_BOT);
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    runOnUiThread(() -> addToChat("서버 요청 실패: " + e.getMessage(), Message.SENT_BY_BOT));
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        try (ResponseBody responseBody = response.body()) {
+                            if (responseBody != null) {
+                                String responseText = responseBody.string();
+                                runOnUiThread(() -> addToChat(responseText, Message.SENT_BY_BOT));
+                            } else {
+                                runOnUiThread(() -> addToChat("서버 응답이 비어 있습니다.", Message.SENT_BY_BOT));
+                            }
+                        }
                     } else {
-                        addToChat("서버 응답 실패", Message.SENT_BY_BOT);
+                        runOnUiThread(() -> addToChat("서버 요청 실패: " + response.message(), Message.SENT_BY_BOT));
                     }
                 }
-            }
-        });
-    }
-
-    private boolean isGroupAndDocumentSet() {
-        String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
-        String folderName = SidebarSingleton.getInstance().getSelectedFolderName();
-        return groupName != null && !groupName.isEmpty() && folderName != null && !folderName.isEmpty();
-    }
-
-    private void syncWithServer() {
-        String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
-        String folderName = SidebarSingleton.getInstance().getSelectedFolderName();
-
-        if (groupName != null && folderName != null) {
-            Log.d(TAG, "서버와 동기화 시작: Group = " + groupName + ", Folder = " + folderName);
-        } else {
-            Log.w(TAG, "그룹 또는 문서집이 설정되지 않아 동기화하지 않습니다.");
+            });
+        } catch (JSONException e) {
+            addToChat("요청 생성 중 오류가 발생했습니다.", Message.SENT_BY_BOT);
+            e.printStackTrace();
         }
     }
 
@@ -233,4 +234,5 @@ public class MainChat extends AppCompatActivity {
             recyclerView.smoothScrollToPosition(messageList.size() - 1);
         });
     }
+
 }
