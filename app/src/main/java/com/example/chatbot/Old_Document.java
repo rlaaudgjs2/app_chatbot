@@ -139,13 +139,12 @@ public class Old_Document extends Fragment {
         }
 
         try {
-            // Google Drive URI인지 확인
             if (fileUri.getAuthority() != null && fileUri.getAuthority().contains("com.google.android.apps.docs.storage")) {
-                // Google Drive 파일 처리
-                handleGoogleDriveFile(fileUri, fileName, folderName);
+                // Google Drive 파일 처리 시 groupName, folderName도 함께 서버로 전송
+                handleGoogleDriveFile(fileUri, fileName, groupName, folderName);
             } else {
-                // 로컬 파일 처리
-                handleLocalFile(fileUri, fileName, folderName);
+                // 로컬 파일 처리 시에도 groupName, folderName 함께 전송
+                handleLocalFile(fileUri, fileName, groupName, folderName);
             }
         } catch (Exception e) {
             Log.e("FileUploadError", "Upload failed", e);
@@ -153,7 +152,8 @@ public class Old_Document extends Fragment {
             uploadProgressBar.setVisibility(View.GONE);
         }
     }
-    private void handleGoogleDriveFile(Uri fileUri, String fileName, String folderName) {
+
+    private void handleGoogleDriveFile(Uri fileUri, String fileName, String groupName, String folderName) {
         try {
             InputStream inputStream = getActivity().getContentResolver().openInputStream(fileUri);
 
@@ -163,13 +163,14 @@ public class Old_Document extends Fragment {
                 return;
             }
 
-            // InputStream 기반 RequestBody 생성
             RequestBody requestBody = createStreamRequestBody(inputStream);
-
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestBody);
-            RequestBody indexName = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
 
-            uploadToServer(body, indexName);
+            // groupName, folderName을 서버로 보낼 RequestBody 생성
+            RequestBody groupNamePart = RequestBody.create(groupName, MediaType.parse("multipart/form-data"));
+            RequestBody folderNamePart = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
+
+            uploadToServer(body, groupNamePart, folderNamePart);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -177,6 +178,56 @@ public class Old_Document extends Fragment {
             uploadProgressBar.setVisibility(View.GONE);
         }
     }
+
+    private void handleLocalFile(Uri fileUri, String fileName, String groupName, String folderName) {
+        String filePath = FileUtils.getPath(getActivity(), fileUri);
+
+        if (filePath == null) {
+            Toast.makeText(getActivity(), "로컬 파일 경로를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            uploadProgressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        File file = new File(filePath);
+        RequestBody requestFile = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestFile);
+
+        RequestBody groupNamePart = RequestBody.create(groupName, MediaType.parse("multipart/form-data"));
+        RequestBody folderNamePart = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
+
+        uploadToServer(body, groupNamePart, folderNamePart);
+    }
+
+    private void uploadToServer(MultipartBody.Part body, RequestBody groupName, RequestBody folderName) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<okhttp3.ResponseBody> call = apiService.uploadFile(body, groupName, folderName);
+        call.enqueue(new Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
+                uploadProgressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String responseText = response.body().string();
+                        // 여기서 서버 응답 문자열을 로그로 확인하거나 토스트로 보여줄 수 있음
+                        Toast.makeText(getActivity(), "파일 업로드 성공! 서버 응답: " + responseText, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), "응답 처리 중 오류: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "업로드 실패: " + response.message(), Toast.LENGTH_SHORT).show();
+                    Log.d("error", response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
+                uploadProgressBar.setVisibility(View.GONE);
+                Log.e("UploadError", "Error: ", t);
+                Toast.makeText(getActivity(), "업로드 중 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private RequestBody createStreamRequestBody(final InputStream inputStream) {
         return new RequestBody() {
@@ -189,62 +240,15 @@ public class Old_Document extends Fragment {
             public void writeTo(BufferedSink sink) throws IOException {
                 byte[] buffer = new byte[4096];
                 int bytesRead;
-
                 try {
                     while ((bytesRead = inputStream.read(buffer)) != -1) {
                         sink.write(buffer, 0, bytesRead);
                     }
                 } finally {
-                    inputStream.close(); // 스트림은 여기서만 닫음
+                    inputStream.close();
                 }
             }
         };
     }
-
-    private void handleLocalFile(Uri fileUri, String fileName, String folderName) {
-        String filePath = FileUtils.getPath(getActivity(), fileUri);
-
-        if (filePath == null) {
-            Toast.makeText(getActivity(), "로컬 파일 경로를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
-            uploadProgressBar.setVisibility(View.GONE);
-            return;
-        }
-
-        File file = new File(filePath);
-        RequestBody requestFile = RequestBody.create(file, MediaType.parse("application/octet-stream"));
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", fileName, requestFile);
-        RequestBody indexName = RequestBody.create(folderName, MediaType.parse("multipart/form-data"));
-
-        uploadToServer(body, indexName);
-    }
-
-    private void uploadToServer(MultipartBody.Part body, RequestBody indexName) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<Void> call = apiService.uploadFile(body, indexName);
-
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getActivity(), "파일 업로드 성공!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), "업로드 실패: " + response.message(), Toast.LENGTH_SHORT).show();
-                    Log.d("error",response.message());
-                }
-                uploadProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("UploadError", "Error: ", t);
-                Toast.makeText(getActivity(), "업로드 중 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                uploadProgressBar.setVisibility(View.GONE);
-            }
-        });
-    }
-
-
-
-
 
 }

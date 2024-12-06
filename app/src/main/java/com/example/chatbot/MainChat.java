@@ -191,7 +191,7 @@ public class MainChat extends AppCompatActivity {
             requestBody.put("text", query);
             requestBody.put("groupName", groupName);
             requestBody.put("folderName", folderName);
-
+            Log.d(TAG, "Request JSON: " + requestBody.toString()); // 로그 추가
 
             Request request = new Request.Builder()
                     .url("http://10.0.2.2:8080/api/chat")
@@ -210,7 +210,20 @@ public class MainChat extends AppCompatActivity {
                         try (ResponseBody responseBody = response.body()) {
                             if (responseBody != null) {
                                 String responseText = responseBody.string();
-                                runOnUiThread(() -> addToChat(responseText, Message.SENT_BY_BOT));
+                                runOnUiThread(() -> {
+                                    try {
+                                        JSONObject jsonResponse = new JSONObject(responseText);
+                                        if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
+                                            String chatResponse = jsonResponse.optString("response", "응답이 없습니다.");
+                                            addToChat(chatResponse, Message.SENT_BY_BOT);
+                                        } else {
+                                            String errorMsg = jsonResponse.optString("message", "오류 발생");
+                                            addToChat(errorMsg, Message.SENT_BY_BOT);
+                                        }
+                                    } catch (JSONException je) {
+                                        addToChat("JSON 파싱 중 오류 발생: " + je.getMessage(), Message.SENT_BY_BOT);
+                                    }
+                                });
                             } else {
                                 runOnUiThread(() -> addToChat("서버 응답이 비어 있습니다.", Message.SENT_BY_BOT));
                             }
@@ -221,7 +234,7 @@ public class MainChat extends AppCompatActivity {
                 }
             });
         } catch (JSONException e) {
-            addToChat("요청 생성 중 오류가 발생했습니다.", Message.SENT_BY_BOT);
+            addToChat("요청 생성 중 오류가 발생했습니다: " + e.getMessage(), Message.SENT_BY_BOT);
             e.printStackTrace();
         }
     }
