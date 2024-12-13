@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/mainChat"
+        android:icon="@drawable/home"
         android:title="메인화면" />
     <item
         android:id="@+id/document"
-        android:title="문서집" />
+        android:icon="@drawable/documenthome"
+        android:title="문서집 생성" />
     <item
         android:id="@+id/chat_list"
+        android:icon="@drawable/chatimg"
         android:title="채팅 목록" />
     <item
+        android:id="@+id/info_settin"
+        android:title = " " />
+    <item
         android:id="@+id/info_setting"
+        android:icon="@drawable/imformationimg"
         android:title="회원정보 수정" />
+
     <item
         android:id="@+id/group_manag"
+        android:icon="@drawable/groupimg"
         android:title="그룹 설정" />
     <item
         android:id="@+id/document_upload"
+        android:icon="@drawable/uploadimg"
         android:title="문서 업로드" />
-    <item
-        android:id="@+id/logout"
-        android:title="로그아웃" />
+
 </menu>

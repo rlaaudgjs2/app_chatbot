@@ -4,6 +4,12 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -57,13 +65,26 @@ public class SignIn extends Fragment  {
         userIdEditText = view.findViewById(R.id.input_id);
         userPasswordEditText = view.findViewById(R.id.input_password);
         signup_change = view.findViewById(R.id.signup_change);
-
-        signup_change.setOnClickListener(new View.OnClickListener() {
+        String fullText = "회원이 아니신가요? 회원가입";
+        SpannableString spannableString = new SpannableString(fullText);
+        ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
-            public void onClick(View v) {
+            public void onClick(@NonNull View widget) {
                 ChangeSignUp();
             }
-        });
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // 밑줄 제거
+                ds.setColor(ContextCompat.getColor(requireContext(), R.color.black)); // 색상 설정
+            }
+        };
+        int startIndex = fullText.indexOf("회원가입");
+        int endIndex = startIndex + "회원가입".length();
+        spannableString.setSpan(clickableSpan, startIndex,endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        signup_change.setText(spannableString);
+        signup_change.setMovementMethod(LinkMovementMethod.getInstance());
 
         signCat.setOnClickListener(new View.OnClickListener() {
             @Override

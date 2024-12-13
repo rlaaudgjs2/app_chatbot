@@ -5,8 +5,13 @@ import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -70,16 +76,41 @@ public class SignUp extends Fragment {
         signUp_password_duple = view.findViewById(R.id.signUp_password_duple);
         duple_check_id = view.findViewById(R.id.duple_check_id);
         duple_check_name = view.findViewById(R.id.duple_check_name);
-        signin_change = view.findViewById(R.id.signup_change);
         signUpButton = view.findViewById(R.id.signUp_button);
 
-        signin_change.setOnClickListener(v -> {
-            Fragment signIn = new SignIn();
-            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container, signIn);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        });
+        signin_change = view.findViewById(R.id.signup_change);
+        String fullText = "이미 계정이 있으신가요? 로그인하기";
+        SpannableString spannableString = new SpannableString(fullText);
+
+        // "로그인하기" 클릭 가능 설정
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                // Fragment 전환
+                Fragment signIn = new SignIn();
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.container, signIn);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // 밑줄 제거
+                ds.setColor(ContextCompat.getColor(requireContext(), R.color.black)); // 색상 설정
+            }
+        };
+
+        // "로그인하기" 부분 스타일 설정
+        int startIndex = fullText.indexOf("로그인하기");
+        int endIndex = startIndex + "로그인하기".length();
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // TextView에 SpannableString 설정
+        signin_change.setText(spannableString);
+        signin_change.setMovementMethod(LinkMovementMethod.getInstance()); // 클릭 활성화
 
 
         signUpButton.setOnClickListener(v -> newUsersignup());

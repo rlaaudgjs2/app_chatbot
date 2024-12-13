@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/brown"
+    android:background="@color/backgroundColor"
     tools:context=".SettingMyinfo">
 
 
@@ -21,17 +21,24 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
     </ImageButton>
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="이름"
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/user_name"
+        app:layout_constraintLeft_toLeftOf="@+id/user_name"
+        ></TextView>
     <EditText
         android:id="@+id/user_name"
-        android:layout_width="234dp"
+        android:layout_width="340dp"
         android:layout_height="44dp"
         android:background="@drawable/edit_box"
-
         android:ems="10"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/black"
         app:layout_constraintTop_toBottomOf="@+id/mypage_image"
         android:layout_marginTop="50dp"
         android:layout_marginRight="20dp"
@@ -39,23 +46,41 @@
         app:layout_constraintRight_toRightOf="parent"
 
         />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="전화번호"
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/user_phone"
+        app:layout_constraintLeft_toLeftOf="@+id/user_phone"
+        ></TextView>
     <EditText
         android:id="@+id/user_phone"
-        android:layout_width="234dp"
+        android:layout_width="340dp"
         android:layout_height="44dp"
         android:background="@drawable/edit_box"
-        android:hint="전화번호"
+        android:hint="010-1234-5678"
         android:ems="10"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/black"
         app:layout_constraintTop_toBottomOf="@+id/user_name"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:layout_marginRight="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
 
         />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="닉네임"
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/user_nickname"
+        app:layout_constraintLeft_toLeftOf="@+id/user_nickname"
+        ></TextView>
     <EditText
         android:id="@+id/user_nickname"
         android:layout_width="234dp"
@@ -65,11 +90,10 @@
         android:ems="10"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/black"
         app:layout_constraintTop_toBottomOf="@+id/user_phone"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="40dp"
+        app:layout_constraintStart_toStartOf="@+id/user_name"
         app:layout_constraintRight_toRightOf="parent"
         />
 
@@ -78,7 +102,7 @@
         android:layout_width="74dp"
         android:layout_height="33dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/recived"
+        android:background="@drawable/received"
         android:text="중복확인"
         android:textColor="@color/white"
         app:layout_constraintLeft_toRightOf="@id/user_nickname"
@@ -89,13 +113,14 @@
 
     <android.widget.Button
         android:id="@+id/user_amend"
-        android:layout_width="74dp"
-        android:layout_height="33dp"
+        android:layout_width="100dp"
+        android:layout_height="44dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
-        android:background="@drawable/recived"
+        android:background="@drawable/spinner_item"
         android:text="중복확인"
-        android:textColor="@color/white"
+        android:backgroundTint="#F3F4F6"
+        android:textColor="@color/black"
         app:layout_constraintLeft_toRightOf="@id/user_nickname"
         app:layout_constraintBottom_toBottomOf="@id/user_nickname"
         app:layout_constraintTop_toTopOf="@id/user_nickname"
@@ -103,32 +128,34 @@
         />
     <android.widget.Button
         android:id="@+id/user_modify"
-        android:layout_width="80dp"
+        android:layout_width="340dp"
         android:ems="10"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/recived"
+        android:background="@drawable/loginbutton"
         android:text="수정하기"
         android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/user_nickname"
-        android:layout_marginTop="60dp"
-        app:layout_constraintLeft_toLeftOf="@+id/user_nickname"
-        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/settingComplete"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
         />
 
     <android.widget.Button
         android:id="@+id/settingComplete"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
+        android:layout_width="340dp"
+        android:layout_height="48dp"
         android:ems="10"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/recived"
+        android:background="@drawable/loginbutton"
+        android:backgroundTint="@color/white"
         android:text="수정 완료"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/user_nickname"
-        android:layout_marginTop="60dp"
-        app:layout_constraintRight_toRightOf="@+id/user_nickname"
-        android:layout_marginLeft="10dp"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="30dp"
         />
 
 

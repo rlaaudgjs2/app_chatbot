@@ -35,13 +35,16 @@ public class NavigationHelper {
         Spinner documentSpinner = headerView.findViewById(R.id.current_document);
         loadUserData(context, db, userNameTextView, groupSpinner, documentSpinner);
 
+        View logoutSection = navigationView.findViewById(R.id.logout_section); // 분리된 로그아웃 섹션
+        if (logoutSection != null) {
+            logoutSection.setOnClickListener(v -> logOut(context, drawerLayout, navigationView));
+        }
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
             if(id == R.id.mainChat){
                 Intent intent = new Intent(context, MainChat.class);
                 context.startActivity(intent);
-            }
-            else if (id == R.id.document) {
+            } else if (id == R.id.document) {
                 openFragment(fragmentManager, new CreateDocument());
             } else if (id == R.id.chat_list) {
                 openFragment(fragmentManager, new ChatList());
@@ -51,9 +54,7 @@ public class NavigationHelper {
                 openFragment(fragmentManager, new GroupCreate());
             } else if (id == R.id.document_upload) {
                 openFragment(fragmentManager, new Old_Document());
-            } else if (id == R.id.logout) {
-                logOut(context, drawerLayout, navigationView);
-            } else {
+            }  else {
                 Toast.makeText(context, "알 수 없는 메뉴입니다.", Toast.LENGTH_SHORT).show();
             }
 

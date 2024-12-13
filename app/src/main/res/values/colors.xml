@@ -7,5 +7,8 @@
     <color name="brown">#C3A893</color>>
     <color name="orange">#FF0000</color>
     <color name="blue">#778B92</color>
+    <color name="textColor">#374151</color>>
+    <color name="backgroundColor">#F9FAFB</color>
+    <color name="textHintColor">#6B7280</color>
 
 </resources>

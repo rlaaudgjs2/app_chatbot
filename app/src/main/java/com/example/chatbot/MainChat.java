@@ -49,7 +49,6 @@ public class MainChat extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
-    private TextView catGpt;
     private NavigationView navigationView;
     private EditText submitAnswer;
     private ImageButton submitButton;
@@ -66,7 +65,6 @@ public class MainChat extends AppCompatActivity {
 
         // UI 요소 초기화
         recyclerView = findViewById(R.id.recycler_view);
-        catGpt = findViewById(R.id.cat_gpt);
         submitAnswer = findViewById(R.id.submit_answer);
         submitButton = findViewById(R.id.submit_button);
         drawerLayout = findViewById(R.id.drawer_layout);

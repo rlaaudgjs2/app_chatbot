@@ -6,7 +6,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/brown"
+    android:background="#FFFFFF"
     tools:context=".MainChat"
     android:fitsSystemWindows="true">
 
@@ -35,18 +35,6 @@
             app:layout_constraintVertical_bias="1.0"
             tools:layout_editor_absoluteX="0dp" />
 
-        <!-- TextView -->
-        <TextView
-            android:id="@+id/cat_gpt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cat gpt"
-            android:gravity="center"
-            android:textSize="28sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Bottom Layout -->
         <RelativeLayout
@@ -54,10 +42,17 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginTop="8dp"
+            android:background= "#FFFFFF"
             android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:foregroundGravity="center_vertical">
+
 
             <!-- EditText -->
             <EditText
@@ -65,23 +60,25 @@
                 android:layout_width="350dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="11dp"
-                android:layout_marginBottom="4dp"
+                android:background="@drawable/input_background"
+                android:layout_marginEnd="60dp"
                 android:singleLine="true"
+                android:padding="12dp"
+                android:textColorHint="#ab9c71"
                 android:hint="물어보고 싶은 내용을 입력하세요"
-                android:textColorHint="#A64732" />
+                 />
 
             <!-- ImageButton -->
-            <ImageButton
-                android:id="@+id/submit_button"
-                android:layout_width="50dp"
-                android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginEnd="7dp"
-                android:layout_marginBottom="25dp"
-                android:background="@drawable/submit" />
-
+                <ImageButton
+                    android:id="@+id/submit_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginBottom="25dp"
+                    android:background="@drawable/submit" />
+            </FrameLayout>
         </RelativeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -102,8 +99,41 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/white"
         app:headerLayout="@layout/header_layout"
+        app:itemIconTint="@color/black"
+        app:itemIconPadding="10dp"
         app:menu="@menu/sidebar_menu"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true">
+
+        <!-- 로그아웃 섹션 -->
+        <LinearLayout
+            android:id="@+id/logout_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:layout_gravity="bottom">
+
+            <ImageView
+                android:id="@+id/logout_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/logoutimg"
+                android:layout_marginEnd="8dp"
+                />
+
+            <TextView
+                android:id="@+id/logout_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="로그아웃"
+                android:textColor="#DC2626"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.navigation.NavigationView>
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

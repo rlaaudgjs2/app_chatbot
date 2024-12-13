@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="@drawable/itemstroke"
     android:gravity="center_vertical">
 
     <!-- 채팅 프로필 이미지 -->
@@ -57,4 +57,7 @@
         android:text="12:45 PM"
         android:textColor="@color/black"
         android:textSize="12sp" />
+
+
 </LinearLayout>
+
