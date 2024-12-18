@@ -38,10 +38,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="그룹과 문서집을 설정해주세요."
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="16sp"
         android:gravity="center"
         android:visibility="gone"
+        android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/chatToolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
