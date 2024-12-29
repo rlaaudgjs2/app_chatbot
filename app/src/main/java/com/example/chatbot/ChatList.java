@@ -21,7 +21,7 @@ public class ChatList extends Fragment {
     private Toolbar toolbar;
     private RecyclerView recyclerView;
     private TextView warningMessage;
-    private ChatAdapter chatAdapter;
+    private ChatListAdapter chatListAdapter;
     private List<ChatData> chatList;
 
     private FirebaseFirestore db;
@@ -52,10 +52,10 @@ public class ChatList extends Fragment {
         toolbar.setTitle("Chat List");
 
         // RecyclerView 설정
-        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.chatRecycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        chatAdapter = new ChatAdapter(chatList);
-        recyclerView.setAdapter(chatAdapter);
+        chatListAdapter = new ChatListAdapter(chatList);
+        recyclerView.setAdapter(chatListAdapter);
 
         // 경고 메시지 설정
         warningMessage = view.findViewById(R.id.warning_message);
@@ -120,7 +120,7 @@ public class ChatList extends Fragment {
                                 chatList.add(new ChatData(chatName, lastMessage, messageTime));
 
                                 // RecyclerView 업데이트
-                                chatAdapter.notifyDataSetChanged();
+                                chatListAdapter.notifyDataSetChanged();
                             } else {
                                 // chatArr가 비어 있을 경우
                                 warningMessage.setVisibility(View.VISIBLE);

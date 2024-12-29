@@ -41,8 +41,7 @@
         private StorageReference storageReference;
 
         private Pattern specialPattern = Pattern.compile("[!@#$%^&*()_+\\-=\\\\|{}\\[\\]:\";'<>?,./]");
-        private  Pattern number = Pattern.compile("[0-9]");
-        private int user_nickname_check;
+        private int user_nickname_check; //이름 확인
         private EditText user_name;
         private EditText user_PhoneNumber;
         private EditText user_Nickname;

@@ -8,12 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatViewHolder> {
 
     private List<ChatData> chatList;
 
     // Constructor
-    public ChatAdapter(List<ChatData> chatList) {
+    public ChatListAdapter(List<ChatData> chatList) {
         this.chatList = chatList;
     }
 
