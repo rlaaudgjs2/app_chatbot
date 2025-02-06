@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +42,7 @@ public class NavigationHelper {
         Spinner groupSpinner = headerView.findViewById(R.id.current_group);
         Spinner documentSpinner = headerView.findViewById(R.id.current_document);
         loadUserData(context, db, userNameTextView, groupSpinner, documentSpinner);
+        loadGroupAndDocumentInfo(context, groupSpinner, documentSpinner);
         Button codeCopy = headerView.findViewById(R.id.codeCopy);
 
         View logoutSection = navigationView.findViewById(R.id.logout_section); // 분리된 로그아웃 섹션
@@ -58,18 +60,17 @@ public class NavigationHelper {
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
             if(id == R.id.mainChat){
-                Intent intent = new Intent(context, MainChat.class);
-                context.startActivity(intent);
+                openFragment(fragmentManager, new ChatFragment(), "CHAT_FRAGMENT");
             } else if (id == R.id.document) {
-                openFragment(fragmentManager, new CreateDocument());
+                openFragment(fragmentManager, new CreateDocument(), "CreateDocument");
             } else if (id == R.id.chat_list) {
-                openFragment(fragmentManager, new ChatList());
+                openFragment(fragmentManager, new ChatList(), "ChatList");
             } else if (id == R.id.info_setting) {
-                openFragment(fragmentManager, new SettingMyinfo());
+                openFragment(fragmentManager, new SettingMyinfo(), "ettingMyinfo");
             } else if (id == R.id.group_manag) {
-                openFragment(fragmentManager, new GroupCreate());
+                openFragment(fragmentManager, new GroupCreate(), "GroupCreate");
             } else if (id == R.id.document_upload) {
-                openFragment(fragmentManager, new Old_Document());
+                openFragment(fragmentManager, new Old_Document(), "Old_Document");
             }  else {
                 Toast.makeText(context, "알 수 없는 메뉴입니다.", Toast.LENGTH_SHORT).show();
             }
@@ -114,16 +115,51 @@ public class NavigationHelper {
                             groupSpinner.setAdapter(groupAdapter);
 
                             groupSpinner.setOnItemSelectedListener(new GroupSelectionListener(context, db, groupSpinner, documentSpinner));
+
+                            // 어댑터 설정 후 저장된 그룹, 문서 정보 로드
+                            loadGroupAndDocumentInfo(context, groupSpinner, documentSpinner);
                         }
                     }
                 })
                 .addOnFailureListener(e -> Log.e("FirebaseError", "사용자 데이터 로드 실패", e));
     }
 
+    public static void loadGroupAndDocumentInfo(Context context, Spinner groupSpinner, Spinner documentSpinner) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSettings", Context.MODE_PRIVATE);
 
-    private static void openFragment(FragmentManager fragmentManager, androidx.fragment.app.Fragment fragment) {
+        // 저장된 그룹과 문서 정보 불러오기
+        String savedGroup = sharedPreferences.getString("selectedGroup", "그룹 선택");
+        String savedDocument = sharedPreferences.getString("selectedDocument", "문서 선택");
+
+        // 스피너에 설정하기
+        ArrayAdapter<CharSequence> groupAdapter = (ArrayAdapter<CharSequence>) groupSpinner.getAdapter();
+        if (groupAdapter != null) {
+            int groupPosition = groupAdapter.getPosition(savedGroup);
+            groupSpinner.setSelection(groupPosition);
+        } else {
+            Log.e("NavigationHelper", "groupSpinner의 어댑터가 아직 설정되지 않았습니다.");
+        }
+
+        ArrayAdapter<CharSequence> documentAdapter = (ArrayAdapter<CharSequence>) documentSpinner.getAdapter();
+        if (documentAdapter != null) {
+            int documentPosition = documentAdapter.getPosition(savedDocument);
+            documentSpinner.setSelection(documentPosition);
+        } else {
+            Log.e("NavigationHelper", "documentSpinner의 어댑터가 아직 설정되지 않았습니다.");
+        }
+    }
+
+
+
+
+    private static void openFragment(FragmentManager fragmentManager, androidx.fragment.app.Fragment fragment, String tag) {
+        androidx.fragment.app.Fragment existingFragment = fragmentManager.findFragmentByTag(tag);
+        if (existingFragment != null) {
+            fragment = existingFragment;
+        }
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
+        transaction.replace(R.id.fragment_container, fragment, tag);
         transaction.addToBackStack(null);
         transaction.commit();
     }

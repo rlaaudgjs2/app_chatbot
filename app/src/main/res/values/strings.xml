@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Chatbot</string>
-    <string name="google_login_client_id">1039082657595-0c8hpe3ej39j27mmq6vor0t17evhr3kn.apps.googleusercontent.com</string>
-    <!-- TODO: Remove or change this placeholder text -->
+     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="open">Open</string>
     <string name="closed">Closed</string>
+    <string name="default_web_client_id">411290520425-31atp2hqmq71t9mti3vkl6li0826snpv.apps.googleusercontent.com</string>
 </resources>

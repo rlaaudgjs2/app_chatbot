@@ -3,8 +3,6 @@ package com.example.chatbot;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -34,11 +32,18 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.appcheck.FirebaseAppCheck;
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -51,20 +56,30 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SignIn extends Fragment  {
-    private static final int RC_SIGN_IN = 123;
-    private GoogleSignInClient mGoogleSignInClient;
+public class SignIn extends Fragment {
+
     private View view;
     private String id;
     private TextView signup_change;
+    private GoogleSignInClient mGoogleSignInClient;
 
     private EditText userIdEditText;
+    private static final int RC_SIGN_IN = 9001;
     private EditText userPasswordEditText;
+    private FirebaseAuth mAuth;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_sign_in, container, false);
+        mAuth = FirebaseAuth.getInstance();
 
+        // App Check 디버그 토큰 설정
+        FirebaseApp.initializeApp(requireContext());
+        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+                DebugAppCheckProviderFactory.getInstance()
+        );
+        // 🔹 Google 로그인 옵션 설정
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))  // Firebase에서 생성된 Web Client ID 필요
                 .requestEmail()
                 .build();
 
@@ -72,8 +87,8 @@ public class SignIn extends Fragment  {
 
         SignInButton googleButton = view.findViewById(R.id.buttonGoogle);
         googleButton.setSize(SignInButton.SIZE_STANDARD);
-
-        Button signCat = view.findViewById(R.id.cats_login);
+        googleButton.setOnClickListener(v -> signInWithGoogle());
+   Button signCat = view.findViewById(R.id.cats_login);
 
         userIdEditText = view.findViewById(R.id.input_id);
         userPasswordEditText = view.findViewById(R.id.input_password);
@@ -85,6 +100,7 @@ public class SignIn extends Fragment  {
             public void onClick(@NonNull View widget) {
                 ChangeSignUp();
             }
+
             @Override
             public void updateDrawState(TextPaint ds) {
                 super.updateDrawState(ds);
@@ -94,7 +110,7 @@ public class SignIn extends Fragment  {
         };
         int startIndex = fullText.indexOf("회원가입");
         int endIndex = startIndex + "회원가입".length();
-        spannableString.setSpan(clickableSpan, startIndex,endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableString.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         signup_change.setText(spannableString);
         signup_change.setMovementMethod(LinkMovementMethod.getInstance());
@@ -109,6 +125,60 @@ public class SignIn extends Fragment  {
         return view;
     }
 
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            try {
+                GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                Log.w(TAG, "Google sign-in failed", e);
+                Toast.makeText(getContext(), "Google 로그인 실패", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(requireActivity(), task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            saveUserToFirestore(user);
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Firebase 인증 실패", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void saveUserToFirestore(FirebaseUser user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("uid", user.getUid());
+        userData.put("email", user.getEmail());
+        userData.put("name", user.getDisplayName());
+
+        db.collection("users").document(user.getUid())
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "환영합니다, " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+                    groupCheck();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "데이터 저장 오류", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+
     private void ChangeSignUp() {
         Fragment signUp = new SignUp();
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
@@ -121,31 +191,31 @@ public class SignIn extends Fragment  {
     }
 
 
-    private void signCat(){
+    private void signCat() {
         String userID = userIdEditText.getText().toString();
         String userPassword = userPasswordEditText.getText().toString();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        if(userID.isEmpty()){
-            Toast.makeText(getContext(),"아이디를 입력해주세요", + Toast.LENGTH_SHORT).show();
+        if (userID.isEmpty()) {
+            Toast.makeText(getContext(), "아이디를 입력해주세요", +Toast.LENGTH_SHORT).show();
             userIdEditText.requestFocus();
         } else if (userPassword.isEmpty()) {
-            Toast.makeText(getContext(),"비밀번호를 입력해주세요", + Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "비밀번호를 입력해주세요", +Toast.LENGTH_SHORT).show();
             userPasswordEditText.requestFocus();
-        }else {
-            mAuth.signInWithEmailAndPassword(userID + "@timproject.co.kr",userPassword)
+        } else {
+            mAuth.signInWithEmailAndPassword(userID + "@timproject.co.kr", userPassword)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             // 로그인 성공
                             FirebaseUser user = mAuth.getCurrentUser();
                             String uid = user.getUid();
-                            Toast.makeText(getContext(), "환영합니다",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "환영합니다", Toast.LENGTH_SHORT).show();
                             checkGPTKeyInFirebase(uid);
-//                            groupCheck();
+//
                             UidSingleton singleton = UidSingleton.getInstance();
                             singleton.setUid(uid);
                         } else {
                             // 로그인 실패
-                            Toast.makeText(getContext(), "로그인 실패: "+ "정보를 다시확인해주세요", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "로그인 실패: " + "정보를 다시확인해주세요", Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -154,56 +224,50 @@ public class SignIn extends Fragment  {
     }
 
     private void groupCheck() {
-
-        String id = userIdEditText.getText().toString();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "로그인한 사용자가 없습니다.");
+            return;
+        }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference usersRef = db.collection("users");
-        Query query = usersRef.whereEqualTo("id",id);
-
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        // 해당 사용자의 문서를 찾음
-                        Map<String, Object> userData = document.getData();
-                        if (userData != null && userData.containsKey("groups")) {
-                            Intent intent = new Intent(requireContext(), MainChat.class);
-                            startActivity(intent);
-                            // 현재 Fragment 종료
-                            requireActivity().finish();
-
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            if (document.contains("groups")) {
+                                // 그룹 정보가 있으면 ChatFragment로 이동
+                                FragmentTransaction transaction = requireActivity()
+                                        .getSupportFragmentManager()
+                                        .beginTransaction();
+                                transaction.replace(R.id.container, new ChatFragment());
+                                transaction.commit();
+                            } else {
+                                // 그룹 정보가 없으면 그룹 생성 Fragment로 이동
+                                Toast.makeText(getContext(), "그룹이 없어 그룹 생성 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("uid", document.getId());
+                                // 필요하다면 추가 정보도 번들에 담기
+                                Fragment groupCreate = new GroupCreate();
+                                groupCreate.setArguments(bundle);
+                                FragmentTransaction transaction = requireActivity()
+                                        .getSupportFragmentManager()
+                                        .beginTransaction();
+                                transaction.replace(R.id.container, groupCreate);
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }
                         } else {
-
-                            // 사용자의 그룹 정보가 없는 경우
-                            Toast.makeText(getContext(),  "그룹이 없어 그룹 생성 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
-
-
-                            Bundle bundle = new Bundle();
-                            bundle.putString("uid", document.getId());
-                            bundle.putString("userId", id);
-
-                            // Fragment 전환을 위해 아이디 정보를 포함한 Bundle을 인자로 넘김
-                            Fragment groupCreate = new GroupCreate();
-                            groupCreate.setArguments(bundle);
-
-                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.container, groupCreate);
-                            transaction.addToBackStack(null);
-                            transaction.commit();
+                            Log.d(TAG, "해당 사용자를 찾을 수 없습니다.");
                         }
+                    } else {
+                        Log.e(TAG, "사용자 그룹 정보 확인 중 오류 발생: " + task.getException());
                     }
-                } else {
-                    // 해당 사용자를 찾을 수 없는 경우
-                    Log.d(TAG, "해당 사용자를 찾을 수 없습니다.");
-                }
-            } else {
-                // 쿼리 실행 실패 시 처리
-                Log.e(TAG, "사용자 그룹 정보 확인 중 오류 발생: " + task.getException());
-            }
-        });
+                });
     }
+
 
     private void checkGPTKeyInFirebase(String uid) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -214,7 +278,10 @@ public class SignIn extends Fragment  {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists() && document.getBoolean("hasGPTKey") != null) {
                             boolean hasGPTKey = document.getBoolean("hasGPTKey");
-                            if (!hasGPTKey) {
+                            if (hasGPTKey) {
+                                // hasGPTKey가 true이면 바로 다음 과정으로 이동
+                                groupCheck();
+                            } else {
                                 showGPTKeyDialog(requireContext(), uid);
                             }
                         } else {
@@ -226,7 +293,8 @@ public class SignIn extends Fragment  {
                 });
     }
 
-    private static void showGPTKeyDialog(Context context, String uid) {
+
+    private void showGPTKeyDialog(Context context, String uid) {
         // 다이얼로그 빌더 생성
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -244,7 +312,7 @@ public class SignIn extends Fragment  {
         }
 
         // 뷰 참조
-        TextView dialogTitle = dialogView.findViewById(R.id.GPT_title);
+
         EditText inputCode = dialogView.findViewById(R.id.input_code);
         Button buttonSubmit = dialogView.findViewById(R.id.gptbutton_input);
         Button buttonCancel = dialogView.findViewById(R.id.gptbutton_cancel);
@@ -255,11 +323,11 @@ public class SignIn extends Fragment  {
             @Override
             public void onClick(View v) {
                 String gptCode = inputCode.getText().toString().trim();
-                if(gptCode.isEmpty()) {
+                if (gptCode.isEmpty()) {
                     Toast.makeText(context, "코드가 입력되지 않았습니다", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                validateAndSaveKey(dialog.getContext(),uid,gptCode);
+                validateAndSaveKey(dialog.getContext(), uid, gptCode);
 
             }
         });
@@ -284,79 +352,79 @@ public class SignIn extends Fragment  {
         // 다이얼로그 표시
         dialog.show();
     }
-    private static void validateAndSaveKey(Context context, String uid, String apiKey) {
-        String lambdaUrl = "https://omkxvd5y1g.execute-api.us-east-2.amazonaws.com/manageKey";
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            Toast.makeText(context, "사용자 인증 정보가 없습니다.", Toast.LENGTH_SHORT).show();
+    private void validateAndSaveKey(Context context, String uid, String apiKey) {
+        String lambdaUrl = "https://l3k3tdlonf.execute-api.us-east-2.amazonaws.com/default/save_api_key_lambda";
+
+        ;
+
+        JSONObject requestBody = new JSONObject();
+
+        try {
+            // 요청 바디에 UID와 API 키 포함
+            requestBody.put("uid", uid);
+            requestBody.put("apiKey", apiKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "요청 생성 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        user.getIdToken(true).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                String firebaseIdToken = task.getResult().getToken();
-                JSONObject requestBody = new JSONObject();
+        // Lambda 요청
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                lambdaUrl,
+                requestBody,
+                response -> {
+                    try {
+                        // Lambda 응답 처리
+                        int statusCode = response.optInt("statusCode", 200);
+                        String message = response.getString("message");
 
-                try {
-                    requestBody.put("action", "set");
-                    requestBody.put("uid", uid);
-                    requestBody.put("apiKey", apiKey);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                        if (statusCode == 200) {
+                            // 성공 처리
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("users").document(uid)
+                                            .update("hasGPTKey",true)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(context, "API 키가 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                                        groupCheck();  // 다음 단계로 이동
+                                    })
+                                    .addOnFailureListener(e ->{
+                                        Toast.makeText(context, "저장에 문제가 생겼습니다.", Toast.LENGTH_SHORT).show();
+                                    });
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, lambdaUrl, requestBody,
-                        response -> {
-                            try {
-                                String message = response.getString("message");
-                                if ("API Key saved successfully".equals(message)) {
-                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    Map<String, Object> update = new HashMap<>();
-                                    update.put("hasGPTKey", true);
-
-                                    db.collection("users").document(uid).update(update)
-                                            .addOnSuccessListener(aVoid -> Toast.makeText(context, "키가 저장되었습니다", Toast.LENGTH_SHORT).show())
-                                            .addOnFailureListener(e -> Log.e("FirebaseError", "Firebase 업데이트 실패", e));
-                                } else {
-                                    Toast.makeText(context, "키 검증 실패: " + response.getString("error"), Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        },
-                        error -> {
-                            Log.e("LambdaError", "키 검증 및 저장 실패: " + error.getMessage());
-                            if (error.networkResponse != null) {
-                                Log.e("LambdaError", "Response Code: " + error.networkResponse.statusCode);
-                                if (error.networkResponse.data != null) {
-                                    String responseBody = new String(error.networkResponse.data);
-                                    Log.e("LambdaError", "Response Body: " + responseBody);
-                                }
-                            }
+                        } else if (statusCode == 400) {
+                            // 유효하지 않은 API 키 처리
+                            Toast.makeText(context, "올바른 키를 입력해주세요: " + message, Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 기타 오류 처리
+                            Toast.makeText(context, "알 수 없는 오류가 발생했습니다: " + message, Toast.LENGTH_SHORT).show();
                         }
-                ) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put("Content-Type", "application/json");
-                        headers.put("Authorization", "Bearer " + firebaseIdToken);
-                        return headers;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(context, "응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
                     }
-                };
-
-                Volley.newRequestQueue(context).add(jsonObjectRequest);
-
-            } else {
-                Log.e("FirebaseError", "ID 토큰 가져오기 실패", task.getException());
-                Toast.makeText(context, "ID 토큰을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
+                },
+                error -> {
+                    // 네트워크 오류 처리
+                    Log.e("LambdaError", "Lambda 호출 실패: " + error.getMessage());
+                    if (error.networkResponse != null) {
+                        String responseBody = new String(error.networkResponse.data);
+                        Log.e("LambdaError", "Response Body: " + responseBody);
+                    }
+                    Toast.makeText(context, "Lambda 호출 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
             }
-        });
+        };
+
+        // 요청 추가
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
-
-
 }
-
-

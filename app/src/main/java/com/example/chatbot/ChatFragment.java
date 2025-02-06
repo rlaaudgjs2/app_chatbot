@@ -3,17 +3,21 @@ package com.example.chatbot;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,7 +28,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,10 +44,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class MainChat extends AppCompatActivity {
+public class ChatFragment extends Fragment {
 
-    private static final String TAG = "MainChat";
-
+    private static final String TAG = "ChatFragment";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private DrawerLayout drawerLayout;
@@ -58,31 +60,48 @@ public class MainChat extends AppCompatActivity {
 
     private OkHttpClient client;
     private FirebaseFirestore db;
+
+    public ChatFragment() {
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // fragment_chat.xml 레이아웃 파일을 inflate 합니다.
+        return inflater.inflate(R.layout.fragment_chat, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // UI 요소 초기화
-        recyclerView = findViewById(R.id.recycler_view);
-        submitAnswer = findViewById(R.id.submit_answer);
-        submitButton = findViewById(R.id.submit_button);
-        drawerLayout = findViewById(R.id.drawer_layout);
+        recyclerView = view.findViewById(R.id.recycler_view);
+        submitAnswer = view.findViewById(R.id.submit_answer);
+        submitButton = view.findViewById(R.id.submit_button);
+        drawerLayout = view.findViewById(R.id.drawer_layout);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        if (getActivity() instanceof AppCompatActivity) {
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        }
 
-        // 네비게이션 뷰 설정
-        navigationView = findViewById(R.id.navigation_view);
-        FirebaseApp.initializeApp(this);
+        navigationView = view.findViewById(R.id.navigation_view);
+
+        // Firebase 초기화 및 Firestore 인스턴스 가져오기
+        FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
-        NavigationHelper.setupNavigationDrawer(this, drawerLayout, navigationView, getSupportFragmentManager(), db);
+
+        // 네비게이션 드로어 설정 (NavigationHelper는 별도로 구현되어 있어야 합니다)
+        NavigationHelper.setupNavigationDrawer(getActivity(), drawerLayout, navigationView, getChildFragmentManager(), db);
 
         // 리사이클러 뷰 설정
         messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(messageAdapter);
 
         // OkHttpClient 초기화
@@ -90,7 +109,7 @@ public class MainChat extends AppCompatActivity {
 
         // ActionBarDrawerToggle 설정
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this,
+                getActivity(),
                 drawerLayout,
                 toolbar,
                 R.string.open,
@@ -134,10 +153,10 @@ public class MainChat extends AppCompatActivity {
             Log.d(TAG, "그룹 및 문서 설정 완료: 작업 가능.");
         } else {
             Log.w(TAG, "그룹 및 문서 설정 필요: 작업 불가.");
-            Toast.makeText(this, "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
-
+    //버튼 클릭 활성/비활성화
     private void enableInteraction(boolean enabled) {
         submitAnswer.setEnabled(enabled);
         submitButton.setEnabled(enabled);
@@ -153,7 +172,7 @@ public class MainChat extends AppCompatActivity {
                 fetchFilesFromFirebaseAndSend(question);
             }
         } else {
-            Toast.makeText(this, "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "그룹과 문서집을 설정해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -175,7 +194,6 @@ public class MainChat extends AppCompatActivity {
                     if (task.isSuccessful() && task.getResult() != null) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             sendChatRequest(query, groupName, folderName);
-
                         }
                     } else {
                         addToChat("문서를 찾을 수 없습니다.", Message.SENT_BY_BOT);
@@ -189,7 +207,7 @@ public class MainChat extends AppCompatActivity {
             requestBody.put("text", query);
             requestBody.put("groupName", groupName);
             requestBody.put("folderName", folderName);
-            Log.d(TAG, "Request JSON: " + requestBody.toString()); // 로그 추가
+            Log.d(TAG, "Request JSON: " + requestBody.toString());
 
             Request request = new Request.Builder()
                     .url("http://10.0.2.2:8080/api/chat")
@@ -199,7 +217,8 @@ public class MainChat extends AppCompatActivity {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    runOnUiThread(() -> addToChat("서버 요청 실패: " + e.getMessage(), Message.SENT_BY_BOT));
+                    requireActivity().runOnUiThread(() ->
+                            addToChat("서버 요청 실패: " + e.getMessage(), Message.SENT_BY_BOT));
                 }
 
                 @Override
@@ -208,7 +227,7 @@ public class MainChat extends AppCompatActivity {
                         try (ResponseBody responseBody = response.body()) {
                             if (responseBody != null) {
                                 String responseText = responseBody.string();
-                                runOnUiThread(() -> {
+                                requireActivity().runOnUiThread(() -> {
                                     try {
                                         JSONObject jsonResponse = new JSONObject(responseText);
                                         if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
@@ -223,11 +242,13 @@ public class MainChat extends AppCompatActivity {
                                     }
                                 });
                             } else {
-                                runOnUiThread(() -> addToChat("서버 응답이 비어 있습니다.", Message.SENT_BY_BOT));
+                                requireActivity().runOnUiThread(() ->
+                                        addToChat("서버 응답이 비어 있습니다.", Message.SENT_BY_BOT));
                             }
                         }
                     } else {
-                        runOnUiThread(() -> addToChat("서버 요청 실패: " + response.message(), Message.SENT_BY_BOT));
+                        requireActivity().runOnUiThread(() ->
+                                addToChat("서버 요청 실패: " + response.message(), Message.SENT_BY_BOT));
                     }
                 }
             });
@@ -237,13 +258,12 @@ public class MainChat extends AppCompatActivity {
         }
     }
 
-    void addToChat(String message, String sentBy) {
-        runOnUiThread(() -> {
+    private void addToChat(String message, String sentBy) {
+        requireActivity().runOnUiThread(() -> {
             Message newMessage = new Message(message, sentBy);
             messageList.add(newMessage);
             messageAdapter.notifyItemInserted(messageList.size() - 1);
             recyclerView.smoothScrollToPosition(messageList.size() - 1);
         });
     }
-
 }

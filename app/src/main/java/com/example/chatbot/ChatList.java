@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -70,6 +72,7 @@ public class ChatList extends Fragment {
         // SidebarSingleton에서 그룹 이름과 문서집 가져오기
         String groupName = SidebarSingleton.getInstance().getSelectedGroupName();
         String documentName = SidebarSingleton.getInstance().getSelectedFolderName();
+        Toast.makeText(getContext(), "groupName"+groupName + "documentName"+documentName, Toast.LENGTH_SHORT).show();
 
         // 그룹 이름과 문서집이 설정되지 않았을 경우 경고 메시지 표시
         if (groupName == null || groupName.isEmpty() || documentName == null || documentName.isEmpty()) {

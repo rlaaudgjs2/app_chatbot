@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -146,8 +147,12 @@ public class GroupCreate extends Fragment {
                                                 // MainActivity로 이동
                                                 Activity currentActivity = getActivity();
                                                 if (currentActivity != null) {
-                                                    Intent intent = new Intent(currentActivity, MainChat.class);
-                                                    currentActivity.startActivity(intent);
+                                                    AppCompatActivity appCompatActivity = (AppCompatActivity) currentActivity;
+                                                    ChatFragment chatFragment = new ChatFragment();
+                                                    appCompatActivity.getSupportFragmentManager()
+                                                            .beginTransaction()
+                                                            .replace(R.id.fragment_container, chatFragment)
+                                                            .commit();
                                                 }
                                             })
                                             .addOnFailureListener(e -> {
