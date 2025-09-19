@@ -1,13 +1,13 @@
 # cats_project
 
 ## 개발 기간 
-2023.03.06 ~ 2023.08
+2023.03.05 ~ 2023.08
 
 
 
 ## 요구되는 기술 
 사용 기술 : framework : android studio   
-front :  java 선택 이유 : 프로젝트가 다양한 라이브러리를 사용할 수 있어 코틀린보다는 오랫동안 사용된 자바가 용이할 것으로 판단   
+front :  java + xml로 진행   
 backend :  
 server :  
 database :   
